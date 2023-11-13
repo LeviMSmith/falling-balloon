@@ -1,16 +1,18 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef CONFIG_H_
+#define CONFIG_H_
 
 #include "core.h"
 
-struct Config {
+class Config {
+public:
+  static Result create(Config*& config);
+  static void destroy(Config* config);
+  Result save(const Config* config, const char* filepath);
+  Result load(Config* config, const char* filepath);
+
   u32 window_width;
   u32 window_height;
   b8 window_start_maximixed;
 };
 
-void config_default(Config* config);
-Result config_save(const Config* config, const char* filepath);
-Result config_load(Config* config, const char* filepath);
-
-#endif
+#endif // CONFIG_H_

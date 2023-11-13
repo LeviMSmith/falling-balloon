@@ -9,11 +9,11 @@
 class App {
 public:
   static Result create(App*& app, Args* args);
-  static void destroy(App*& app);
+  static void destroy(App* app);
 
 private:
   Args* args;
-  Config config;
+  Config* config;
 };
 
 #endif // APP_H_

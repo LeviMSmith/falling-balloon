@@ -2,14 +2,21 @@
 
 #include <stdio.h>
 
-void config_default(Config* config) {
-  config->window_width = 600;
-  config->window_height = 400;
-  config->window_start_maximixed = true;
+Result Config::create(Config*& config) {
+    config = new Config;
+    config->window_width = 600;
+    config->window_height = 400;
+    config->window_start_maximixed = true;
+
+    return RESULT_TYPE_SUCCESS;
+}
+
+void Config::destroy(Config* config) {
+    delete config;
 }
 
 // TODO: Use JSON
-Result config_save(const Config* config, const char* filepath) {
+Result Config::save(const Config* config, const char* filepath) {
     FILE* file = fopen(filepath, "wb");
     if (file) {
         fwrite(config, sizeof(Config), 1, file);
@@ -27,7 +34,7 @@ Result config_save(const Config* config, const char* filepath) {
 }
 
 // TODO: Use JSON
-Result config_load(Config* config, const char* filepath) {
+Result Config::load(Config* config, const char* filepath) {
     FILE* file = fopen(filepath, "rb");
     if (file) {
         fread(config, sizeof(Config), 1, file);
