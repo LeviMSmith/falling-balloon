@@ -1,4 +1,4 @@
-PROJECTNAME := app
+PROJECTNAME := falling-balloon
 
 # Directories
 SRCDIR := src
