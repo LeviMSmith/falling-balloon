@@ -1,33 +1,21 @@
 #ifndef ECS_H_
 #define ECS_H_
 
-// NOTE: Components can come from anywhere, but things
-// not specific to one module are included in the default
-// ecs component folder.
-
 #include "core.h"
 
 #include "utils/math/vec.h"
 
+#include "update/ecs/entity.h"
+
+#include "update/components/pos.h"
+#include "update/components/kinetic.h"
+#include "update/components/camera.h"
+#include "update/components/graphics_pipline.h"
+#include "update/components/chunk.h"
+
 #include <set>
 #include <vector>
 #include <map>
-
-typedef u32 EntityID;
-typedef u32 ComponentBitmask;
-
-enum ComponentType: u32 {
-    POS = 1 << 0,
-    KINETIC = 1 << 1,
-    CAMERA = 1 << 2,
-    GRAPHICS_PIPELINE = 1 << 3,
-    CHUNK = 1 << 4
-};
-
-// 4bytes
-struct Entity {
-  ComponentBitmask components;
-};
 
 // Number of each component allowed (and preallocated)
 // Storage numbers bellow don't include pointer overhead for the maps
@@ -47,33 +35,6 @@ constexpr size_t MAX_CAMERA_COMPONENTS = 24; // x24 bytes 576B
 // like the other components and probably won't ever reach this max.
 constexpr size_t MAX_GRAPHICS_PIPELINE_COMPONENTS = 100;
 constexpr size_t MAX_CHUNK_COMPONENTS = MAX_CHUNKS; // x69640 1393MB
-
-constexpr size_t CHUNK_COMPONENT_CELL_WIDTH = 16;
-
-namespace Components {
-  struct Pos {
-    Vec3<f32> pos;
-  };
-
-  struct Kinetic {
-    Vec3<f32> vel;
-    Vec3<f32> acc;
-  };
-
-  struct Camera {
-    Vec3<f32> pos;
-    Vec3<f32> rotation;
-  };
-
-  struct GraphicsPipeline {
-    u8 type;
-  };
-
-  struct Chunk {
-    std::set<EntityID> entities;
-    u8 cells[CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH];
-  };
-}
 
 class ECS {
 public:
