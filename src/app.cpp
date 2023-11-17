@@ -8,13 +8,13 @@ Result App::create(App*& app, Args* args) {
 
   app->args = args;
   Result config_result = Config::create(app->config);
-  if (config_result.code != ResultCode::SUCCESS) {
+  if (config_result != Result::SUCCESS) {
     App::destroy(app);
     app = nullptr;
     return config_result;
   }
 
-  return RESULT_TYPE_SUCCESS;
+  return Result::SUCCESS;
 }
 
 void App::destroy(App* app) {

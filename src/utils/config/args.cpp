@@ -25,7 +25,7 @@ Result Args::create(Args*& args) {
 
   args->log_level = LogLevel::INFO;
 
-  return RESULT_TYPE_SUCCESS;
+  return Result::SUCCESS;
 }
 
 void Args::destroy(Args*& args) {
@@ -46,22 +46,14 @@ Result Args::parse(int argc, char* const argv[], Args* args) {
       }
       case 'h': {
         print_usage();
-        Result help_result = {
-          .msg = "Help",
-          .code = ResultCode::FAILURE_ARGS_HELP,
-        };
-        return help_result;
+        return Result::FAILURE_ARGS_HELP;
       }
       default: {
         print_usage();
-        Result bad_result = {
-          .msg = "Bad option",
-          .code = ResultCode::FAILURE_ARGS_PARSE,
-        };
-        return bad_result;
+        return Result::FAILURE_ARGS_PARSE;
       }
     }
   }
 
-  return RESULT_TYPE_SUCCESS;
+  return Result::SUCCESS;
 }

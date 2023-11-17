@@ -11,7 +11,7 @@ LogLevel log_level_threshold = LogLevel::INFO;
 Result init_log(LogLevel level) {
   log_level_threshold = level;
 
-  return RESULT_TYPE_SUCCESS;
+  return Result::SUCCESS;
 }
 
 const char* log_level_names[] = {

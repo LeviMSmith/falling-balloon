@@ -8,7 +8,7 @@ Result Config::create(Config*& config) {
     config->window_height = 400;
     config->window_start_maximixed = true;
 
-    return RESULT_TYPE_SUCCESS;
+    return Result::SUCCESS;
 }
 
 void Config::destroy(Config* config) {
@@ -21,15 +21,10 @@ Result Config::save(const Config* config, const char* filepath) {
     if (file) {
         fwrite(config, sizeof(Config), 1, file);
         fclose(file);
-        return RESULT_TYPE_SUCCESS;
+        return Result::SUCCESS;
     }
     else {
-      Result result = {
-        .msg = "Failed to save config. File didn't open.",
-        .code = ResultCode::FAILURE_FILE_IO
-      };
-
-      return result;
+      return Result::FAILURE_FILE_IO;
     }
 }
 
@@ -39,15 +34,10 @@ Result Config::load(Config* config, const char* filepath) {
     if (file) {
         fread(config, sizeof(Config), 1, file);
         fclose(file);
-        return RESULT_TYPE_SUCCESS;
+        return Result::SUCCESS;
     }
     else {
-      Result result = {
-        .msg = "Failed to load config. File didn't open.",
-        .code = ResultCode::FAILURE_FILE_IO
-      };
-
-      return result;
+      return Result::FAILURE_FILE_IO;
     }
 }
 

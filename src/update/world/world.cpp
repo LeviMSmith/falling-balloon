@@ -3,7 +3,9 @@
 #include "update/world/world.h"
 
 Result World::create(World*& world) {
-  return RESULT_TYPE_SUCCESS;
+  world = new World;
+
+  return Result::SUCCESS;
 }
 
 void World::destroy(World* world) {
