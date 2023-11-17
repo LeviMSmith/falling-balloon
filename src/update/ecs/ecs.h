@@ -9,6 +9,7 @@
 
 #include "utils/math/vec.h"
 
+#include <set>
 #include <vector>
 #include <map>
 
@@ -23,24 +24,24 @@ enum ComponentType: u32 {
     CHUNK = 1 << 4
 };
 
-// 8bytes
+// 4bytes
 struct Entity {
-  EntityID id;
   ComponentBitmask components;
 };
 
 // Number of each component allowed (and preallocated)
 // Storage numbers bellow don't include pointer overhead for the maps
 
-constexpr size_t MAX_GLOBAL_ENTITIES = 4096;
 constexpr size_t MAX_CHUNK_ENTITIES = 2048;
 constexpr size_t MAX_CHUNKS = 20000;
+constexpr size_t MAX_GLOBAL_ENTITIES = MAX_CHUNKS + 4096;
 
 // 40964096 Entiies in this case
+constexpr size_t MAX_TOTAL_NON_CHUNK_ENTITIES = (MAX_CHUNKS * MAX_CHUNK_ENTITIES) + MAX_GLOBAL_ENTITIES - MAX_CHUNKS;
 constexpr size_t MAX_TOTAL_ENTITIES = (MAX_CHUNKS * MAX_CHUNK_ENTITIES) + MAX_GLOBAL_ENTITIES;
 
-constexpr size_t MAX_POS_COMPONENTS = MAX_TOTAL_ENTITIES; // x12 bytes 491MB
-constexpr size_t MAX_KINETIC_COMPONENTS = MAX_TOTAL_ENTITIES / 2; // x24 bytes 491MB
+constexpr size_t MAX_POS_COMPONENTS = MAX_TOTAL_NON_CHUNK_ENTITIES; // x12 bytes 491MB
+constexpr size_t MAX_KINETIC_COMPONENTS = MAX_TOTAL_NON_CHUNK_ENTITIES / 2; // x24 bytes 491MB
 constexpr size_t MAX_CAMERA_COMPONENTS = 24; // x24 bytes 576B
 // Graphics backend makes these and they are likely large, but not preallocated
 // like the other components and probably won't ever reach this max.
@@ -69,7 +70,7 @@ namespace Components {
   };
 
   struct Chunk {
-    std::vector<Entity> entities;
+    std::set<EntityID> entities;
     u8 cells[CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH];
   };
 }
@@ -79,18 +80,22 @@ public:
   static Result create(ECS*& ecs);
   static void destroy(ECS* ecs);
 
-  // Entity functions
-  Result create_entity(Entity*& entity);
+  Result create_entity(EntityID& id, ComponentBitmask = 0);
   void destroy_entity(Entity* entity);
 
-  void assign_component_to_entity(Entity* entity, ComponentType);
-  void remove_component_from_entity(Entity* entity, ComponentType);
+  Result assign_component_to_entity(Entity* entity, ComponentType component_type);
+  Result remove_component_from_entity(Entity* entity, ComponentType component_type);
 
   // Factory functions
   Result create_entity_player(Entity*& entity);
   Result create_entity_chunk(Entity*& entity);
 
 private:
+  Entity entities[MAX_TOTAL_ENTITIES];
+  std::set<EntityID> entity_id_pool;
+
+  Result get_entity_id(EntityID& id);
+
   // Components
   std::map<EntityID, Components::Pos> pos_components;
   std::map<EntityID, Components::Kinetic> kinetic_components;

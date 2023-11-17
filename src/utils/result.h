@@ -8,6 +8,8 @@ enum Result: int {
   FAILURE_ARGS_HELP,
 
   FAILURE_FILE_IO,
+
+  FAILURE_POOL_FULL,
 };
 
 #endif //RESULT_H
