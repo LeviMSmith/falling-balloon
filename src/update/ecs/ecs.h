@@ -79,7 +79,12 @@ public:
   static Result create(ECS*& ecs);
   static void destroy(ECS* ecs);
 
+  // Entity functions
+  Result create_entity(Entity*& entity);
   void destroy_entity(Entity* entity);
+
+  void assign_component_to_entity(Entity* entity, ComponentType);
+  void remove_component_from_entity(Entity* entity, ComponentType);
 
   // Factory functions
   Result create_entity_player(Entity*& entity);

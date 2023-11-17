@@ -10,3 +10,7 @@ Result ECS::create(ECS*& ecs) {
 void ECS::destroy(ECS *ecs) {
   delete ecs;
 }
+
+Result ECS::create_entity(Entity* entity, ComponentType component_type) {
+  return RESULT_TYPE_SUCCESS;
+}
