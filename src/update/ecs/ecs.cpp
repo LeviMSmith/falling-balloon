@@ -4,7 +4,7 @@
 Result ECS::create(ECS*& ecs) {
   ecs = new ECS;
 
-  return RESULT_TYPE_SUCCESS;
+  return Result::SUCCESS;
 }
 
 void ECS::destroy(ECS *ecs) {
