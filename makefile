@@ -1,7 +1,7 @@
 PROJECTNAME := falling-balloon
 
 # Directories
-SRCDIR := src
+SRCDIR := sauce
 BUILDDIR := build
 TARGETDIR := bin
 
@@ -15,7 +15,7 @@ ifeq ($(BUILD), release)
 endif
 
 # Compiler and linker flags
-CFLAGS := -Isrc -MMD -Wall -Wunused-result -std=c++20
+CFLAGS := -I$(SRCDIR) -MMD -Wall -Wunused-result -std=c++20
 LDFLAGS :=
 ifeq ($(BUILD_TYPE), release)
     CFLAGS += -O2 -DNDEBUG
