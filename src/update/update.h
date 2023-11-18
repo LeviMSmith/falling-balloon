@@ -3,4 +3,15 @@
 
 #include "core.h"
 
+#include "update/ecs/ecs.h"
+
+class Update {
+public:
+  static Result create(Update*& update);
+  static void destroy(Update* update);
+
+private:
+  ECS* ecs;
+};
+
 #endif // UPDATE_H_

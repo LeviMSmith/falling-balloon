@@ -12,14 +12,17 @@ Result Config::create(Config*& config) {
 }
 
 void Config::destroy(Config* config) {
-    delete config;
+    if (config != nullptr) {
+        // config->save();
+        delete config;
+    }
 }
 
 // TODO: Use JSON
-Result Config::save(const Config* config, const char* filepath) {
+Result Config::save(const char* filepath) const {
     FILE* file = fopen(filepath, "wb");
     if (file) {
-        fwrite(config, sizeof(Config), 1, file);
+        fwrite(this, sizeof(Config), 1, file);
         fclose(file);
         return Result::SUCCESS;
     }
@@ -29,10 +32,10 @@ Result Config::save(const Config* config, const char* filepath) {
 }
 
 // TODO: Use JSON
-Result Config::load(Config* config, const char* filepath) {
+Result Config::load(const char* filepath) {
     FILE* file = fopen(filepath, "rb");
     if (file) {
-        fread(config, sizeof(Config), 1, file);
+        fread(this, sizeof(Config), 1, file);
         fclose(file);
         return Result::SUCCESS;
     }
