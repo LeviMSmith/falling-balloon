@@ -4,7 +4,7 @@
 #include "utils/result.h"
 #include "utils/log.h"
 
-const long CLOCKS_PER_MILLISEC = CLOCKS_PER_SEC / 1000;
+constexpr long CLOCKS_PER_MILLISEC = CLOCKS_PER_SEC / 1000;
 
 LogLevel log_level_threshold = LogLevel::INFO;
 
