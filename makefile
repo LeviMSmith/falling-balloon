@@ -5,12 +5,15 @@ SRCDIR := sauce
 BUILDDIR := $(CURDIR)/build
 APPBUILDDIR := $(BUILDDIR)/app
 TARGETDIR := bin
-TARGETLIBDIR := $(TARGETDIR)/lib
 
 GLFW_DIR := vendor/glfw
 GLFW_BUILD_DIR := $(BUILDDIR)/glfw
 GLFW_LIB := $(GLFW_BUILD_DIR)/src/libglfw3.a
 GLFW_INCLUDE := $(GLFW_DIR)/include
+
+GLEW_DIR := vendor/glew-2.2.0
+GLEW_LIB := $(GLEW_DIR)/lib/libGLEW.a
+GLEW_INCLUDE := $(GLEW_DIR)/include
 
 # Compiler options (default to clang)
 CC := /usr/bin/clang
@@ -25,8 +28,8 @@ endif
 CMAKE_BUILD_TYPE := $(shell echo $(BUILD_TYPE) | awk '{print toupper(substr($$0, 1, 1)) tolower(substr($$0, 2))}')
 
 # Compiler and linker flags
-CFLAGS := -I$(SRCDIR) -I$(GLFW_INCLUDE) -MMD -Wall -Wunused-result -std=c++20
-LDFLAGS := -lX11 -L$(TARGETLIBDIR)
+CFLAGS := -I$(SRCDIR) -I$(GLFW_INCLUDE) -I$(GLEW_INCLUDE) -MMD -Wall -Wunused-result -std=c++20
+LDFLAGS := -lX11
 ifeq ($(BUILD_TYPE), release)
     CFLAGS += -O2 -DNDEBUG
 else
@@ -42,7 +45,7 @@ TARGET := $(TARGETDIR)/$(PROJECTNAME)
 # Default target is to build the program
 all: $(TARGET)
 
-$(TARGET): $(OBJECTS) $(GLFW_LIB) $(DILIGENT_LIBS) | $(TARGETDIR)
+$(TARGET): $(OBJECTS) $(GLFW_LIB) $(GLEW_LIB) | $(TARGETDIR)
 	@mkdir -p $(@D)
 	$(CXX) $^ -o $@ $(LDFLAGS)
 
@@ -53,6 +56,9 @@ $(OBJECTS): $(APPBUILDDIR)/%.o: $(SRCDIR)/%.cpp
 
 $(GLFW_LIB): cmake_config | $(GLFW_BUILD_DIR)
 	$(MAKE) -C $(GLFW_BUILD_DIR)
+
+$(GLEW_LIB):
+	$(MAKE) -C $(GLEW_DIR) glew.lib.static
 
 $(BUILDDIR) $(GLFW_BUILD_DIR) $(TARGETDIR) $(TARGETLIBDIR):
 	mkdir -p $@
@@ -69,6 +75,7 @@ clean:
 	@echo " Cleaning... "
 	rm -rf $(BUILDDIR) $(TARGETDIR)
 	rm -rf .cache
+	rm -f $(GLEW_LIB)
 	@echo " Done. "
 
 run: all

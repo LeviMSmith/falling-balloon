@@ -5,15 +5,24 @@
 
 #include <vector>
 
-#define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
 
 enum Event {
-  GLFW_WINDOW_SHOULD_CLOSE  
+  WINDOW_SHOULD_CLOSE,
+  WINDOW_RESIZED,
+  WINDOW_MAXIMIZED,
+  WINDOW_UNMAXIMIZED,
+};
+
+struct WindowSize {
+  int width;
+  int height;
 };
 
 struct Events {
   std::vector<Event> window_events;
+
+  WindowSize window_size;
 };
 
 class EventHandler {
