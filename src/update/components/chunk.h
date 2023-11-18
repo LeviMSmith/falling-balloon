@@ -10,9 +10,13 @@
 namespace Components {
   constexpr size_t CHUNK_COMPONENT_CELL_WIDTH = 16;
 
-  struct Chunk {
+  class Chunk {
+  public:
     std::set<EntityID> entities;
     u8 cells[CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH];
+
+    static Result create(Chunk& chunk);
+    static void destroy(Chunk& chunk);
   };
 }
 

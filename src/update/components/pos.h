@@ -6,8 +6,12 @@
 #include "utils/math/vec.h"
 
 namespace Components {
-  struct Pos {
+  class Pos {
+  public:
     Vec3<f32> pos;
+
+    static Result create(Pos& pos);
+    static void destroy(Pos& pos);
   };
 }
 

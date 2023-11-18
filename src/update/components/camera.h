@@ -6,9 +6,13 @@
 #include "utils/math/vec.h"
 
 namespace Components {
-  struct Camera {
+  class Camera {
+  public:
     Vec3<f32> pos;
     Vec3<f32> rotation;
+
+    static Result create(Camera& camera);
+    static void destroy(Camera& camera);
   };
 }
 

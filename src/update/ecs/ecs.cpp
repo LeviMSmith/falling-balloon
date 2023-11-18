@@ -85,6 +85,7 @@ Result ECS::add_component_to_entity(EntityID entity_id, ComponentType component_
       break;
     }
     default: {
+      LOG_WARN("Got weird component type in entity component addition");
       return Result::FAILURE_UNKNOWN_COMPONENT_TYPE;
     }
   }
@@ -124,7 +125,7 @@ void ECS::remove_component_from_entity(EntityID entity_id, ComponentType compone
       break;
     }
     default: {
-      return Result::FAILURE_UNKNOWN_COMPONENT_TYPE;
+      LOG_WARN("Got weird component type in entity component removal");
     }
   }
 

@@ -4,8 +4,12 @@
 #include "core.h"
 
 namespace Components {
-  struct GraphicsPipeline {
+  class GraphicsPipeline {
+  public:
     u8 type;
+
+    static Result create(GraphicsPipeline& graphics_pipline);
+    static void destroy(GraphicsPipeline& graphics_pipline);
   };
 }
 

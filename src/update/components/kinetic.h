@@ -6,9 +6,13 @@
 #include "utils/math/vec.h"
 
 namespace Components {
-  struct Kinetic {
+  class Kinetic {
+  public:
     Vec3<f32> vel;
     Vec3<f32> acc;
+
+    static Result create(Kinetic& kinetic);
+    static void destroy(Kinetic& kinetic);
   };
 }
 
