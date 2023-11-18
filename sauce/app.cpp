@@ -10,6 +10,8 @@
 
 #include "event/event.h"
 
+#include <algorithm>
+
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
 
@@ -64,4 +66,21 @@ void App::destroy(App*& app) {
     delete app;
   }
   app = nullptr;
+}
+
+Result App::run() {
+  b8 running = true;
+  while (running) {
+    event_handler->get_events(&events);
+
+    // Later update and render will go through the events
+    // and tell this loop to exit if GLFW_WINDOW_CLOSE is around
+    for (Event event : events.window_events) {
+      if (event == Event::GLFW_WINDOW_SHOULD_CLOSE) {
+        running = false;
+      }
+    }
+  }
+
+  return Result::SUCCESS;
 }

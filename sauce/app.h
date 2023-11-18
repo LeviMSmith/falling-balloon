@@ -15,6 +15,8 @@ public:
   static Result create(App*& app, Args* args);
   static void destroy(App*& app);
 
+  Result run();
+
 private:
   Args* args;
   Config* config;
@@ -22,6 +24,7 @@ private:
   Update* update;
   Render* render;
   EventHandler* event_handler;
+  Events events;
 };
 
 #endif // APP_H_

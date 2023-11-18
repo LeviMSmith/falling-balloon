@@ -2,7 +2,7 @@
 #define RESULT_H
 
 enum Result: int {
-  SUCCESS,
+  SUCCESS = 0,
 
   FAILURE_ARGS_PARSE,
   FAILURE_ARGS_HELP,
