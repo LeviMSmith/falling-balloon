@@ -45,10 +45,10 @@ public:
   static Result create(ECS*& ecs);
   static void destroy(ECS* ecs);
 
-  Result create_entity(EntityID& id, ComponentBitmask = 0);
-  void destroy_entity(EntityID id);
+  Result create_entity(EntityID& entity_id, ComponentBitmask component_bitmask = 0);
+  void destroy_entity(EntityID entity_id);
 
-  Result add_component_to_entity(EntityID, ComponentType component_type);
+  Result add_component_to_entity(EntityID entity_id, ComponentType component_type);
   void remove_component_from_entity(EntityID entity,
                                       ComponentType component_type);
 
