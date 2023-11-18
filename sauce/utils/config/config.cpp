@@ -7,6 +7,7 @@ Result Config::create(Config*& config) {
     config->window_width = 600;
     config->window_height = 400;
     config->window_start_maximixed = true;
+    config->fps_cap = 60;
 
     return Result::SUCCESS;
 }

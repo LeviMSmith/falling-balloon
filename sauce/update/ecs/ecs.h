@@ -71,6 +71,9 @@ private:
   std::map<EntityID, Components::Camera> camera_components;
   std::map<EntityID, Components::GraphicsPipeline> graphics_pipeline_components;
   std::map<EntityID, Components::Chunk> chunk_components;
+
+  friend class Render;
+  friend class Update;
 };
 
 #endif // ECS_H_

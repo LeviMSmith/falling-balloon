@@ -10,9 +10,7 @@ public:
   static Result create(Update*& update);
   static void destroy(Update* update);
 
-private:
   ECS* ecs;
-
   EntityID active_player;
 };
 
