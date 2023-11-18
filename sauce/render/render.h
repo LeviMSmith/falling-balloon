@@ -12,6 +12,7 @@ public:
   static Result create(Render*& render, const Config* const config);
   static void destroy(Render* render);
 
+  void get_glfw_window(GLFWwindow*& glfw_window);
 private:
   GLFWwindow* glfw_window;
 };

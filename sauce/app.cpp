@@ -8,11 +8,17 @@
 
 #include "render/render.h"
 
+#include "event/event.h"
+
+#define GLFW_INCLUDE_VULKAN
+#include "GLFW/glfw3.h"
+
 Result App::create(App*& app, Args* args) {
   app = new App;
   app->config = nullptr;
   app->update = nullptr;
   app->render = nullptr;
+  app->event_handler = nullptr;
 
   app->args = args;
   Result config_create_res = Config::create(app->config);
@@ -31,9 +37,19 @@ Result App::create(App*& app, Args* args) {
 
   Result render_create_res = Render::create(app->render, app->config);
   if (render_create_res != Result::SUCCESS) {
-    LOG_FATAL("App failed to create renderer. Exiting...");
+    LOG_FATAL("App failed to create renderer.");
     App::destroy(app);
-    return update_create_res;
+    return render_create_res;
+  }
+
+  GLFWwindow* glfw_window = nullptr;
+  app->render->get_glfw_window(glfw_window);
+
+  Result event_create_res = EventHandler::create(app->event_handler, glfw_window);
+  if (event_create_res != Result::SUCCESS) {
+    LOG_FATAL("App failed to create event handler.");
+    App::destroy(app);
+    return event_create_res;
   }
 
   return Result::SUCCESS;

@@ -8,6 +8,7 @@
 
 #include "update/update.h"
 #include "render/render.h"
+#include "event/event.h"
 
 class App {
 public:
@@ -20,6 +21,7 @@ private:
 
   Update* update;
   Render* render;
+  EventHandler* event_handler;
 };
 
 #endif // APP_H_
