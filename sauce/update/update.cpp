@@ -5,6 +5,7 @@
 
 Result Update::create(Update*& update) {
   update = new Update;
+  update->ecs = nullptr;
 
   Result ecs_create_res = ECS::create(update->ecs);
   if (ecs_create_res != Result::SUCCESS) {
