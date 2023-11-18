@@ -18,8 +18,10 @@ Result ECS::create(ECS*& ecs) {
 
 void ECS::destroy(ECS* ecs) {
   if (ecs != nullptr) {
-    for (EntityID entity_id : ecs->entity_id_pool) {
-      ecs->destroy_entity(entity_id);
+    for (auto it = ecs->entity_id_pool.begin(); it != ecs->entity_id_pool.end(); ) {
+      EntityID current_id = *it;
+      ++it;  // Increment iterator before the potential deletion
+      ecs->destroy_entity(current_id);
     }
 
     delete ecs;
@@ -136,6 +138,18 @@ void ECS::remove_component_from_entity(EntityID entity_id, ComponentType compone
   }
 
   entities[entity_id].components = entities[entity_id].components & (~component_type);
+}
+
+Result ECS::create_entity_player(EntityID& entity_id) {
+  constexpr ComponentBitmask player_component_bitmask = ComponentType::CHUNK | ComponentType::KINETIC | ComponentType::CAMERA;
+
+  return create_entity(entity_id, player_component_bitmask);
+}
+
+Result ECS::create_entity_chunk(EntityID& entity_id) {
+  constexpr ComponentBitmask chunk_component_bitmask = ComponentType::POS | ComponentType::CHUNK;
+
+  return create_entity(entity_id, chunk_component_bitmask);
 }
 
 Result ECS::get_entity_id(EntityID& id) {

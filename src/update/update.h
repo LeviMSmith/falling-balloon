@@ -12,6 +12,8 @@ public:
 
 private:
   ECS* ecs;
+
+  EntityID active_player;
 };
 
 #endif // UPDATE_H_

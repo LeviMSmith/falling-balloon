@@ -19,6 +19,9 @@
 
 // Number of each component allowed (and preallocated)
 // Storage numbers bellow don't include pointer overhead for the maps
+//
+// A lot of these maxes aren't hard and won't actually effect anything
+// at the moment
 
 constexpr size_t MAX_CHUNK_ENTITIES = 2048;
 constexpr size_t MAX_CHUNKS = 20000;
@@ -53,8 +56,8 @@ public:
                                       ComponentType component_type);
 
   // Factory functions
-  Result create_entity_player(EntityID& id);
-  Result create_entity_chunk(EntityID& id);
+  Result create_entity_player(EntityID& entity_id);
+  Result create_entity_chunk(EntityID& entity_id);
 
 private:
   Entity entities[MAX_TOTAL_ENTITIES];

@@ -12,6 +12,11 @@ Result Update::create(Update*& update) {
     return ecs_create_res; 
   }
 
+  Result player_create_res = update->ecs->create_entity_player(update->active_player);
+  if (player_create_res != Result::SUCCESS) {
+    return player_create_res;
+  }
+
   return Result::SUCCESS;
 }
 
