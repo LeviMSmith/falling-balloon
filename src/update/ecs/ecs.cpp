@@ -16,8 +16,14 @@ Result ECS::create(ECS*& ecs) {
   return Result::SUCCESS;
 }
 
-void ECS::destroy(ECS *ecs) {
-  delete ecs;
+void ECS::destroy(ECS* ecs) {
+  if (ecs != nullptr) {
+    for (EntityID entity_id : ecs->entity_id_pool) {
+      ecs->destroy_entity(entity_id);
+    }
+
+    delete ecs;
+  }
 }
 
 Result ECS::create_entity(EntityID& entity_id, ComponentBitmask component_bitmask) {

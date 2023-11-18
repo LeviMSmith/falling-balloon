@@ -6,6 +6,8 @@
 #include "utils/config/args.h"
 #include "utils/config/config.h"
 
+#include "update/update.h"
+
 class App {
 public:
   static Result create(App*& app, Args* args);
@@ -14,6 +16,8 @@ public:
 private:
   Args* args;
   Config* config;
+
+  Update* update;
 };
 
 #endif // APP_H_
