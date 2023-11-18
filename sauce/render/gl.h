@@ -13,6 +13,8 @@ public:
 
   Result draw();
   Result present();
+
+  void handle_resize(int width = 0, int height = 0);
 private:
   GLFWwindow* glfw_window;
 };

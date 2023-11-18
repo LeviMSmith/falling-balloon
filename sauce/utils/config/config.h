@@ -13,6 +13,7 @@ public:
   u32 window_width;
   u32 window_height;
   b8 window_start_maximixed;
+  u16 fps_cap;
 };
 
 #endif // CONFIG_H_

@@ -29,7 +29,7 @@ CMAKE_BUILD_TYPE := $(shell echo $(BUILD_TYPE) | awk '{print toupper(substr($$0,
 
 # Compiler and linker flags
 CFLAGS := -I$(SRCDIR) -I$(GLFW_INCLUDE) -I$(GLEW_INCLUDE) -MMD -Wall -Wunused-result -std=c++20
-LDFLAGS := -lX11
+LDFLAGS := -lX11 -lGL
 ifeq ($(BUILD_TYPE), release)
     CFLAGS += -O2 -DNDEBUG
 else

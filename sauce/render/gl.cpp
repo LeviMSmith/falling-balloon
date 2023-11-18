@@ -6,8 +6,11 @@
 
 Result GlBackend::create(GlBackend*& gl_backend, GLFWwindow* glfw_window) {
   gl_backend = new GlBackend;
+  gl_backend->glfw_window = glfw_window;
 
-  // Can I just say that I hate stateful libraries?
+  glfwMakeContextCurrent(glfw_window);
+
+  // Can I just say that I hate stateful libraries
   GLenum err = glewInit();
   if (err != GLEW_OK) {
     GlBackend::destroy(gl_backend);
@@ -16,7 +19,7 @@ Result GlBackend::create(GlBackend*& gl_backend, GLFWwindow* glfw_window) {
     return Result::FAILURE_GLEW_ERROR;
   }
 
-  glfwMakeContextCurrent(glfw_window);
+  gl_backend->handle_resize();
 
   return Result::SUCCESS;
 }
@@ -37,4 +40,18 @@ Result GlBackend::draw() {
 Result GlBackend::present() {
   glfwSwapBuffers(glfw_window);
   return Result::SUCCESS;
+}
+
+void GlBackend::handle_resize(int width, int height) {
+  LOG_INFO("GL backend handling framebuffer resize");
+
+  // It is possible that GLFW hands us these values from the callback,
+  // but just to make sure it's not the default we'll grab the values
+  // from glfw again.
+  if (width == 0 || height == 0) {
+    LOG_DEBUG("Grabbing framebuffer size from GLFW");
+    glfwGetFramebufferSize(glfw_window, &width, &height);
+  }
+
+  glViewport(0, 0, width, height);
 }

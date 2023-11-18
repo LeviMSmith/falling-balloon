@@ -31,9 +31,10 @@ public:
   static void destroy(EventHandler*& event_handler);
 
   static void get_events(Events* events);
-  static void clear_events();
 private:
   GLFWwindow* glfw_window;
+
+  static void clear_events();
 };
 
 #endif // EVENT_H_

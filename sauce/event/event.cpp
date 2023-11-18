@@ -17,7 +17,7 @@ Result EventHandler::create(EventHandler*& event_handler, GLFWwindow* glfw_windo
 
   glfwSetErrorCallback((GLFWerrorfun)error_callback);
   glfwSetWindowCloseCallback(glfw_window, (GLFWwindowclosefun)window_close_callback);
-  glfwSetWindowSizeCallback(glfw_window, (GLFWwindowsizefun)window_resize_callback);
+  glfwSetFramebufferSizeCallback(glfw_window, (GLFWwindowsizefun)window_resize_callback);
   glfwSetWindowMaximizeCallback(glfw_window, window_maximized_callback);
 
   return Result::SUCCESS;
@@ -31,6 +31,7 @@ void EventHandler::destroy(EventHandler*& event_handler) {
 }
 
 void EventHandler::get_events(Events* out_events) {
+  clear_events();
   glfwPollEvents();
 
   *out_events = events;

@@ -17,12 +17,17 @@ Result Render::create(Render*& render, const Config* const config) {
     return Result::FAILURE_GLFW_ERROR;
   }
 
-  if (!glfwVulkanSupported()) {
-    Render::destroy(render);
-    LOG_ERROR("GLFW is not supporting Vulkan. Is there a loader available?");
-    return Result::FAILURE_GLFW_ERROR;
-  }
+  // if (!glfwVulkanSupported()) {
+  //   Render::destroy(render);
+  //   LOG_ERROR("GLFW is not supporting Vulkan. Is there a loader available?");
+  //   return Result::FAILURE_GLFW_ERROR;
+  // }
+  
+#ifndef NDEBUG
+  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
 
+  // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
   if (config->window_start_maximixed) {
     glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
@@ -53,7 +58,23 @@ void Render::destroy(Render*& render) {
   }
 }
 
-Result Render::draw() {
+Result Render::draw(Events* events) {
+  for (Event event : events->window_events) {
+    switch (event) {
+      case Event::WINDOW_SHOULD_CLOSE: {
+        return Result::RENDER_WINDOW_SHOULD_CLOSE;
+      }
+      case Event::WINDOW_RESIZED:
+        frame_buffer_width = events->window_size.width;
+        frame_buffer_height = events->window_size.height;
+        gl_backend->handle_resize(frame_buffer_width, frame_buffer_height);
+        break;
+      case Event::WINDOW_MAXIMIZED:
+      case Event::WINDOW_UNMAXIMIZED:
+        break;
+    }
+  }
+
   return gl_backend->draw();
 }
 

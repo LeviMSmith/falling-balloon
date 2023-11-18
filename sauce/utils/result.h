@@ -15,6 +15,8 @@ enum Result: int {
 
   FAILURE_GLFW_ERROR,
   FAILURE_GLEW_ERROR,
+
+  RENDER_WINDOW_SHOULD_CLOSE,
 };
 
 #endif //RESULT_H
