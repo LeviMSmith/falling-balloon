@@ -14,7 +14,8 @@ enum ComponentType: u32 {
     CHUNK = 1 << 4
 };
 
-// 4bytes
+constexpr u8 NUM_COMPONENT_TYPES = 5;
+
 struct Entity {
   ComponentBitmask components;
 };

@@ -7,15 +7,15 @@
 
 #include "update/ecs/entity.h"
 
-#include "update/components/pos.h"
-#include "update/components/kinetic.h"
 #include "update/components/camera.h"
-#include "update/components/graphics_pipline.h"
 #include "update/components/chunk.h"
+#include "update/components/graphics_pipline.h"
+#include "update/components/kinetic.h"
+#include "update/components/pos.h"
 
+#include <map>
 #include <set>
 #include <vector>
-#include <map>
 
 // Number of each component allowed (and preallocated)
 // Storage numbers bellow don't include pointer overhead for the maps
@@ -25,11 +25,15 @@ constexpr size_t MAX_CHUNKS = 20000;
 constexpr size_t MAX_GLOBAL_ENTITIES = MAX_CHUNKS + 4096;
 
 // 40964096 Entiies in this case
-constexpr size_t MAX_TOTAL_NON_CHUNK_ENTITIES = (MAX_CHUNKS * MAX_CHUNK_ENTITIES) + MAX_GLOBAL_ENTITIES - MAX_CHUNKS;
-constexpr size_t MAX_TOTAL_ENTITIES = (MAX_CHUNKS * MAX_CHUNK_ENTITIES) + MAX_GLOBAL_ENTITIES;
+constexpr size_t MAX_TOTAL_NON_CHUNK_ENTITIES =
+    (MAX_CHUNKS * MAX_CHUNK_ENTITIES) + MAX_GLOBAL_ENTITIES - MAX_CHUNKS;
+constexpr size_t MAX_TOTAL_ENTITIES =
+    (MAX_CHUNKS * MAX_CHUNK_ENTITIES) + MAX_GLOBAL_ENTITIES;
 
-constexpr size_t MAX_POS_COMPONENTS = MAX_TOTAL_NON_CHUNK_ENTITIES; // x12 bytes 491MB
-constexpr size_t MAX_KINETIC_COMPONENTS = MAX_TOTAL_NON_CHUNK_ENTITIES / 2; // x24 bytes 491MB
+constexpr size_t MAX_POS_COMPONENTS =
+    MAX_TOTAL_NON_CHUNK_ENTITIES; // x12 bytes 491MB
+constexpr size_t MAX_KINETIC_COMPONENTS =
+    MAX_TOTAL_NON_CHUNK_ENTITIES / 2;        // x24 bytes 491MB
 constexpr size_t MAX_CAMERA_COMPONENTS = 24; // x24 bytes 576B
 // Graphics backend makes these and they are likely large, but not preallocated
 // like the other components and probably won't ever reach this max.
@@ -42,14 +46,15 @@ public:
   static void destroy(ECS* ecs);
 
   Result create_entity(EntityID& id, ComponentBitmask = 0);
-  void destroy_entity(Entity* entity);
+  void destroy_entity(EntityID id);
 
-  Result assign_component_to_entity(Entity* entity, ComponentType component_type);
-  Result remove_component_from_entity(Entity* entity, ComponentType component_type);
+  Result add_component_to_entity(EntityID, ComponentType component_type);
+  void remove_component_from_entity(EntityID entity,
+                                      ComponentType component_type);
 
   // Factory functions
-  Result create_entity_player(Entity*& entity);
-  Result create_entity_chunk(Entity*& entity);
+  Result create_entity_player(EntityID& id);
+  Result create_entity_chunk(EntityID& id);
 
 private:
   Entity entities[MAX_TOTAL_ENTITIES];
@@ -65,4 +70,4 @@ private:
   std::map<EntityID, Components::Chunk> chunk_components;
 };
 
-#endif //ECS_H_
+#endif // ECS_H_
