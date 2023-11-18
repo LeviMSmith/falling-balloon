@@ -58,7 +58,7 @@ void Render::destroy(Render*& render) {
   }
 }
 
-Result Render::draw(Events* events) {
+Result Render::draw(Events* events, ECS* ecs) {
   for (Event event : events->window_events) {
     switch (event) {
       case Event::WINDOW_SHOULD_CLOSE: {
@@ -75,7 +75,7 @@ Result Render::draw(Events* events) {
     }
   }
 
-  return gl_backend->draw();
+  return gl_backend->draw(ecs);
 }
 
 Result Render::present() {

@@ -37,8 +37,6 @@ void app_log(const char* msg, LogLevel level) {
         auto current_time = std::chrono::steady_clock::now();
         auto time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
 
-        printf("[%ld ms] [%s%s\033[0m] %s\n", time_elapsed, log_level_colors[level], log_level_names[level], msg);
+        printf("[%ld] [%s%s\033[0m] %s\n", time_elapsed, log_level_colors[level], log_level_names[level], msg);
     }
 }
-
-

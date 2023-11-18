@@ -6,6 +6,7 @@
 
 #include "render/gl.h"
 #include "event/event.h"
+#include "update/ecs/ecs.h"
 
 #include "GLFW/glfw3.h"
 
@@ -14,7 +15,7 @@ public:
   static Result create(Render*& render, const Config* const config);
   static void destroy(Render*& render);
 
-  Result draw(Events* events);
+  Result draw(Events* events, ECS* ecs);
   Result present();
 
   void get_glfw_window(GLFWwindow*& glfw_window);

@@ -58,6 +58,8 @@ Result App::create(App*& app, Args* args) {
 }
 
 void App::destroy(App*& app) {
+  LOG_INFO("Closing app");
+
   Render::destroy(app->render);
   Update::destroy(app->update);
   Config::destroy(app->config);
@@ -72,7 +74,7 @@ Result App::run() {
   b8 running = true;
   while (running) {
     event_handler->get_events(&events);
-    Result render_draw_res = render->draw(&events);
+    Result render_draw_res = render->draw(&events, update->ecs);
     if (render_draw_res == Result::RENDER_WINDOW_SHOULD_CLOSE) {
       running = false;
     }

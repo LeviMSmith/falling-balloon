@@ -1,6 +1,8 @@
 #include "core.h"
 #include "render/gl.h"
 
+#include "update/ecs/ecs.h"
+
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
@@ -21,6 +23,8 @@ Result GlBackend::create(GlBackend*& gl_backend, GLFWwindow* glfw_window) {
 
   gl_backend->handle_resize();
 
+  gl_backend->prepare_chunk_pipeline();
+
   return Result::SUCCESS;
 }
 
@@ -31,8 +35,10 @@ void GlBackend::destroy(GlBackend*& gl_backend) {
   }
 }
 
-Result GlBackend::draw() {
+Result GlBackend::draw(const ECS* const ecs) {
   glClear(GL_COLOR_BUFFER_BIT);
+
+  draw_chunk_components(ecs);
 
   return Result::SUCCESS;
 }
@@ -54,4 +60,12 @@ void GlBackend::handle_resize(int width, int height) {
   }
 
   glViewport(0, 0, width, height);
+}
+
+void GlBackend::prepare_chunk_pipeline() {
+
+}
+
+void GlBackend::draw_chunk_components(const ECS* const ecs) {
+
 }
