@@ -2,6 +2,3 @@
 	path = vendor/glfw
 	url = git@github.com:glfw/glfw.git
 	branch = 3.3-stable
-[submodule "vendor/DiligentEngine"]
-	path = vendor/DiligentEngine
-	url = git@github.com:DiligentGraphics/DiligentEngine.git
