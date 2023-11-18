@@ -12,6 +12,8 @@ enum Result: int {
   FAILURE_POOL_FULL,
 
   FAILURE_UNKNOWN_COMPONENT_TYPE,
+
+  FAILURE_GLFW_ERROR,
 };
 
 #endif //RESULT_H

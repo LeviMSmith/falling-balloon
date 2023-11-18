@@ -3,6 +3,11 @@
 #include "utils/config/args.h"
 #include "utils/config/config.h"
 
+#include "update/update.h"
+#include "update/ecs/ecs.h"
+
+#include "render/render.h"
+
 Result App::create(App*& app, Args* args) {
   app = new App;
   app->config = nullptr;
@@ -22,6 +27,8 @@ Result App::create(App*& app, Args* args) {
     app = nullptr;
     return update_create_res;
   }
+
+
 
   return Result::SUCCESS;
 }
