@@ -1,10 +1,8 @@
 #include <stdio.h>
-#include <time.h>
+#include <chrono>
 
 #include "utils/result.h"
 #include "utils/log.h"
-
-constexpr long CLOCKS_PER_MILLISEC = CLOCKS_PER_SEC / 1000;
 
 LogLevel log_level_threshold = LogLevel::INFO;
 
@@ -30,8 +28,17 @@ const char* log_level_colors[] = {
   "\033[35m" // Dark Magenta
 };
 
+
+
 void app_log(const char* msg, LogLevel level) {
-  if (level >= log_level_threshold) {
-    printf("[%ld] [%s%s\033[0m] %s\n", clock()/CLOCKS_PER_MILLISEC, log_level_colors[level], log_level_names[level], msg);
-  }
+    static auto start_time = std::chrono::steady_clock::now(); // Record start time
+
+    if (level >= log_level_threshold) {
+        auto current_time = std::chrono::steady_clock::now();
+        auto time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
+
+        printf("[%ld ms] [%s%s\033[0m] %s\n", time_elapsed, log_level_colors[level], log_level_names[level], msg);
+    }
 }
+
+
