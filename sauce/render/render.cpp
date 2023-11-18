@@ -43,3 +43,7 @@ void Render::destroy(Render* render) {
     delete render;
   }
 }
+
+void Render::get_glfw_window(GLFWwindow*& glfw_window) {
+  glfw_window = this->glfw_window;
+}
