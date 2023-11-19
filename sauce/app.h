@@ -5,6 +5,7 @@
 
 #include "utils/config/args.h"
 #include "utils/config/config.h"
+#include "utils/threadpool.h"
 
 #include "update/update.h"
 #include "render/render.h"

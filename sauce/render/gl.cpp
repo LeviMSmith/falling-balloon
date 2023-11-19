@@ -39,15 +39,16 @@ Result GlBackend::create(GlBackend*& gl_backend, GLFWwindow* glfw_window) {
 
 void GlBackend::destroy(GlBackend*& gl_backend) {
   if (gl_backend != nullptr) {
+    gl_backend->cleanup_chunk_pipeline();
     delete gl_backend;
     gl_backend = nullptr;
   }
 }
 
-Result GlBackend::draw(const ECS* const ecs) {
+Result GlBackend::draw(DrawInfo& draw_info) {
   glClear(GL_COLOR_BUFFER_BIT);
 
-  draw_chunk_components(ecs);
+  draw_chunk_components(draw_info.chunk_meshes);
 
   return Result::SUCCESS;
 }
@@ -144,13 +145,46 @@ Result GlBackend::prepare_chunk_pipeline() {
   glDeleteShader(vertex_shader);
   glDeleteShader(fragment_shader);
 
+  // Now the objects the pipeline uses
+  GLuint vbo;
+  glGenBuffers(1, &vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+  GLuint vao;
+  glGenVertexArrays(1, &vao);
+  glBindVertexArray(vao);
+
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Mesh::Vertex), (void*)offsetof(Mesh::Vertex, position));
+  glEnableVertexAttribArray(0);
+
+  glBindVertexArray(0);
+
+  chunk_pipeline.buffers.push_back(GLSLbuffer {vbo, vao, GLSLbufferType::VERTEX});
+
   return Result::SUCCESS;
 }
 
-void GlBackend::draw_chunk_components(const ECS* const ecs) {
+void GlBackend::cleanup_chunk_pipeline() {
+  GLuint vbo = chunk_pipeline.buffers[0].buffer;
+  GLuint vao = chunk_pipeline.buffers[0].attribute_object;
+
+  glDeleteVertexArrays(1, &vao);
+  glDeleteBuffers(1, &vbo);
+}
+
+void GlBackend::draw_chunk_components(const std::vector<Mesh>& chunk_meshes) {
   glUseProgram(chunk_pipeline.shader_program);
+  for (const Mesh& mesh : chunk_meshes) {
 
-  glDrawArrays(GL_TRIANGLES, 0, 3);
+    GLuint vbo = chunk_pipeline.buffers[0].buffer;
+    GLuint vao = chunk_pipeline.buffers[0].attribute_object;
+    std::vector<Mesh::Vertex> vertices = mesh.verticies;
 
+    glBindBuffer(GL_ARRAY_BUFFER, vbo); 
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Mesh::Vertex), vertices.data(), GL_STATIC_DRAW);
+
+    glBindVertexArray(vao);
+    glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+  }
   glUseProgram(0);
 }

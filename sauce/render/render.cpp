@@ -2,9 +2,15 @@
 #include "render/render.h"
 
 #include "utils/config/config.h"
+#include "utils/threadpool.h"
+#include "update/components/chunk.h"
 #include "render/gl.h"
 
 #include "GLFW/glfw3.h"
+
+#include <functional>
+#include <future>
+#include <vector>
 
 Result Render::create(Render*& render, const Config* const config) {
   render = new Render;
@@ -58,7 +64,7 @@ void Render::destroy(Render*& render) {
   }
 }
 
-Result Render::draw(Events* events, ECS* ecs) {
+Result Render::draw(Events* events, const ECS* const ecs) {
   for (Event event : events->window_events) {
     switch (event) {
       case Event::WINDOW_SHOULD_CLOSE: {
@@ -75,7 +81,11 @@ Result Render::draw(Events* events, ECS* ecs) {
     }
   }
 
-  return gl_backend->draw(ecs);
+  DrawInfo draw_info;
+  std::vector<EntityID> chunks_to_render = get_chunks_to_render(ecs);
+  draw_info.chunk_meshes = chunk_handler.get_chunk_meshes(chunks_to_render, ecs);
+
+  return gl_backend->draw(draw_info);
 }
 
 Result Render::present() {
@@ -84,4 +94,40 @@ Result Render::present() {
 
 void Render::get_glfw_window(GLFWwindow*& glfw_window) {
   glfw_window = this->glfw_window;
+}
+
+std::vector<Mesh> Render::ChunkHandler::get_chunk_meshes(const std::vector<EntityID>& entity_ids, const ECS* const ecs) {
+  std::vector<Mesh> return_meshes;
+
+  Mesh mesh;
+  std::unordered_map<EntityID, std::future<Mesh>> mesh_futures;
+
+  for (EntityID entity_id : entity_ids) {
+    if (mesh_cache.get(entity_id, mesh)) {
+      return_meshes.push_back(mesh);
+    }
+    else {
+      Components::Chunk chunk = ecs->chunk_components.at(entity_id);
+      auto task = std::bind(&Components::Chunk::generate_mesh, &chunk);
+      mesh_futures[entity_id] = ThreadPool::enqueue(task);
+    }
+  }
+
+  for (auto& mesh_future : mesh_futures) {
+    mesh = mesh_future.second.get();
+    return_meshes.push_back(mesh);
+    mesh_cache.put(mesh_future.first, mesh);
+  }
+
+  return return_meshes;
+}
+
+std::vector<EntityID> Render::get_chunks_to_render(const ECS* const ecs) {
+  std::vector<EntityID> return_entities;
+
+  for (const auto& [entity_id, chunk] : ecs->chunk_components)  {
+    return_entities.push_back(entity_id);
+  }
+
+  return return_entities;
 }
