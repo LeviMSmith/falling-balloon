@@ -10,6 +10,9 @@ Result Update::create(Update*& update, ECS* ecs) {
     return player_create_res;
   }
 
+  EntityID chunk_id;
+  ecs->create_entity_chunk(chunk_id);
+
   return Result::SUCCESS;
 }
 
