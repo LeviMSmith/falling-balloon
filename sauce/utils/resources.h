@@ -5,6 +5,11 @@
 
 #include <filesystem>
 
-Result get_resource_path(std::filesystem::path& path);
+class Resources {
+public:
+  static Result get_resource_path(std::filesystem::path& path);
+
+  static const char* SHADER_PATH;
+};
 
 #endif // RESOURCES_H_

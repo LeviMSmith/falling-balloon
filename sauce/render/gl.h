@@ -5,8 +5,22 @@
 
 #include "update/ecs/ecs.h"
 
+#include <filesystem>
+#include <string>
+#include <vector>
+
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
+
+struct GLSLbuffer {
+  GLuint buffer;
+  GLenum type;
+};
+
+struct Pipeline {
+  GLuint shader_program;
+  std::vector<GLSLbuffer> buffers;
+};
 
 class GlBackend {
 public:
@@ -20,7 +34,11 @@ public:
 private:
   GLFWwindow* glfw_window;
 
-  void prepare_chunk_pipeline();
+  static Result load_shader_source(std::string& source, std::filesystem::path shader_path);
+  static Result compile_shader(GLuint& shader, const char* source, GLenum type);
+
+  Pipeline chunk_pipeline;
+  Result prepare_chunk_pipeline();
   void draw_chunk_components(const ECS* const ecs);
 };
 
