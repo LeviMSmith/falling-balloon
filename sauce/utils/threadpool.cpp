@@ -26,7 +26,6 @@ Result ThreadPool::start(size_t num_threads) {
     thread_pool_state->workers.emplace_back([=] {
       while (true) {
         std::function<void()> task;
-
         {
           std::unique_lock<std::mutex> lock{thread_pool_state->eventMutex};
           thread_pool_state->eventVar.wait(lock, [=] { return thread_pool_state->stopping || !thread_pool_state->tasks.empty(); });

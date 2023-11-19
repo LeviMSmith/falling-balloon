@@ -2,9 +2,15 @@
 #include "render/render.h"
 
 #include "utils/config/config.h"
+#include "utils/threadpool.h"
+#include "update/components/chunk.h"
 #include "render/gl.h"
 
 #include "GLFW/glfw3.h"
+
+#include <functional>
+#include <future>
+#include <vector>
 
 Result Render::create(Render*& render, const Config* const config) {
   render = new Render;
@@ -84,4 +90,28 @@ Result Render::present() {
 
 void Render::get_glfw_window(GLFWwindow*& glfw_window) {
   glfw_window = this->glfw_window;
+}
+
+Result Render::ChunkHandler::get_chunk_meshes(std::vector<EntityID>& entity_ids, ECS* ecs) {
+  std::vector<Mesh> return_meshes;
+
+  Mesh mesh;
+  std::vector<std::future<Mesh>> mesh_futures;
+
+  for (EntityID entity_id : entity_ids) {
+    if (mesh_cache.get(entity_id, mesh)) {
+      return_meshes.push_back(mesh);
+    }
+    else {
+      Components::Chunk chunk = ecs->chunk_components[entity_id];
+      auto task = std::bind(&Components::Chunk::generate_mesh, &chunk);
+      mesh_futures.push_back(ThreadPool::enqueue(task));
+    }
+  }
+
+  for (auto& mesh_future : mesh_futures) {
+    return_meshes.push_back(mesh_future.get());
+  }
+
+  return Result::SUCCESS;
 }

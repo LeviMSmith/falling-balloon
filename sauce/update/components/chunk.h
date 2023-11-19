@@ -3,6 +3,7 @@
 
 #include "core.h"
 
+#include "render/mesh.h"
 #include "update/ecs/entity.h"
 
 #include <set>
@@ -17,7 +18,9 @@ namespace Components {
 
     static Result create(Chunk& chunk);
     static void destroy(Chunk& chunk);
+
+    Mesh generate_mesh();
   };
-}
+} // namespace Components
 
 #endif // CHUNK_H_

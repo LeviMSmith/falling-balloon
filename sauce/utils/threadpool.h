@@ -3,7 +3,6 @@
 
 #include "core.h"
 
-#include <cstddef>
 #include <future>
 
 // Don't usually like stateful things, but it makes sense for a
