@@ -27,16 +27,22 @@ int main(int argc, char* argv[]) {
 
     App* app = nullptr;
     Result app_create_result = App::create(app, args);
+    std::optional<Result> app_run_result;
     if (app_create_result != Result::SUCCESS) {
         LOG_FATAL("Couldn't create app! Exiting.");
-        return app_create_result;
     }
-
-    Result app_run_result = app->run();
+    else {
+        app_run_result = app->run();
+    }
 
     ThreadPool::stop();
     App::destroy(app);
     Args::destroy(args);
 
-    return app_run_result;
+    if(app_run_result.has_value()) {
+        return app_run_result.value();
+    }
+    else {
+        return app_create_result;
+    }
 }
