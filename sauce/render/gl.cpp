@@ -62,6 +62,11 @@ Result GlBackend::draw(DrawInfo& draw_info) {
       chunk_pipelines[i].update(draw_info.new_chunk_meshes[i]);
     }
   }
+
+  if (draw_info.new_view.has_value() && ChunkPipeline::shader_program != 0) {
+    glUniformMatrix4fv(ChunkPipeline::view_location, 1, GL_FALSE, glm::value_ptr(draw_info.new_view.value()));
+  }
+
   for (const ChunkPipeline& chunk_pipeline : chunk_pipelines) {
     chunk_pipeline.draw();
   }
@@ -86,6 +91,9 @@ void GlBackend::handle_resize(int width, int height) {
   }
 
   glViewport(0, 0, width, height);
+  f32 aspect_ratio = (f32)width/(f32)height;
+  glm::mat4 projection = glm::perspective(glm::radians(120.0f), aspect_ratio, 1.0f, 100.0f);
+  glUniformMatrix4fv(ChunkPipeline::projection_location, 1, GL_FALSE, glm::value_ptr(projection));
 }
 
 Result GlBackend::load_shader_source(std::string& source, std::filesystem::path shader_path) {
@@ -130,6 +138,9 @@ Result GlBackend::compile_shader(GLuint& shader, const char* source, GLenum type
 //////////////////////////////////////
 
 GLuint GlBackend::ChunkPipeline::shader_program = 0;
+GLuint GlBackend::ChunkPipeline::model_location = 0;
+GLuint GlBackend::ChunkPipeline::view_location = 0;
+GLuint GlBackend::ChunkPipeline::projection_location = 0;
 
 GlBackend::ChunkPipeline::ChunkPipeline() {
   if (ChunkPipeline::shader_program == 0) {
@@ -203,6 +214,10 @@ Result GlBackend::ChunkPipeline::create_shader_program() {
 
   glDeleteShader(vertex_shader);
   glDeleteShader(fragment_shader);
+
+  model_location = glGetUniformLocation(shader_program, "model");
+  view_location  = glGetUniformLocation(shader_program, "view");
+  projection_location  = glGetUniformLocation(shader_program, "projection");
 
   return Result::SUCCESS;
 }

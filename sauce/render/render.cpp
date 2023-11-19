@@ -120,3 +120,15 @@ Result Render::present() {
 void Render::get_glfw_window(GLFWwindow*& glfw_window) {
   glfw_window = this->glfw_window;
 }
+
+std::vector<EntityID> Render::get_loaded_chunks_in_view(const ECS* const ecs) {
+  // Right now we just want to check the rendering so do them all
+  // TODO: actually implement
+  std::vector<EntityID> return_entities;
+  return_entities.reserve(ecs->chunk_components.size());
+  for (const auto& [entity_id, chunk] : ecs->chunk_components) {
+    return_entities.push_back(entity_id);
+  }
+
+  return return_entities;
+}

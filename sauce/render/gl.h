@@ -10,13 +10,14 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <optional>
 
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
 struct DrawInfo {
   std::vector<Mesh> new_chunk_meshes;
-  glm::mat4 new_view;
+  std::optional<glm::mat4> new_view;
 
   void clear();
 };

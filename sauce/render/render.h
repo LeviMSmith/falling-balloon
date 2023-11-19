@@ -36,7 +36,6 @@ private:
   std::unordered_set<EntityID> chunks_in_pipeline;
 
   std::vector<EntityID> get_loaded_chunks_in_view(const ECS* const ecs);
-  std::vector<EntityID> get_chunks_to_render(const ECS* const ecs);
 };
 
 #endif // RENDER_H_

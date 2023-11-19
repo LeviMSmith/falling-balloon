@@ -74,8 +74,8 @@ Result ECS::add_component_to_entity(EntityID entity_id, ComponentType component_
   Result component_create_res;
   switch (component_type) {
     case ComponentType::POS: {
-      Components::Pos& pos = pos_components[entity_id];
-      component_create_res = Components::Pos::create(pos);
+      pos_components[entity_id] = Components::Pos();
+      component_create_res = Result::SUCCESS;
       break;
     }
     case ComponentType::KINETIC: {
@@ -114,8 +114,6 @@ Result ECS::add_component_to_entity(EntityID entity_id, ComponentType component_
 void ECS::remove_component_from_entity(EntityID entity_id, ComponentType component_type) {
   switch (component_type) {
     case ComponentType::POS: {
-      Components::Pos& pos = pos_components[entity_id];
-      Components::Pos::destroy(pos);
       break;
     }
     case ComponentType::KINETIC: {
@@ -169,7 +167,7 @@ std::vector<Mesh> ECS::get_chunk_mesh_component_batch(const std::vector<EntityID
     else {
       Components::Chunk chunk = chunk_components.at(entity_id);
       Components::Pos chunk_pos = pos_components.at(entity_id);
-      auto task = std::bind(&Components::Chunk::generate_mesh, &chunk, chunk_pos);
+      auto task = [&chunk, chunk_pos] { return chunk.generate_mesh(chunk_pos.pos); };
       mesh_futures[entity_id] = ThreadPool::enqueue(task);
     }
   }

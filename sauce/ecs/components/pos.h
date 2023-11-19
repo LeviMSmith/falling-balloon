@@ -3,15 +3,13 @@
 
 #include "core.h"
 
-#include "utils/math/vec.h"
+#include "glm/glm.hpp"
 
 namespace Components {
-  class Pos {
-  public:
-    Vec3<f32> pos;
+  struct Pos {
+    Pos() : pos(glm::vec3(0.0f)) {}
 
-    static Result create(Pos& pos);
-    static void destroy(Pos& pos);
+    glm::vec3 pos;
   };
 }
 

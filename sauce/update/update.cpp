@@ -18,3 +18,7 @@ void Update::destroy(Update* update) {
     delete update;
   }
 }
+
+Result Update::update(ECS* ecs, RenderEvents* render_events) {
+  return Result::SUCCESS;
+}
