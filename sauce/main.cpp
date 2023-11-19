@@ -30,6 +30,8 @@ int main(int argc, char* argv[]) {
         return app_create_result;
     }
 
+    LOG_INFO(argv[0]);
+
     Result app_run_result = app->run();
 
     App::destroy(app);
