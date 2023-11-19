@@ -5,7 +5,7 @@
 
 Result get_executable_path(std::filesystem::path& path);
 
-Result get_resource_path(std::filesystem::path& path) {
+Result Resources::get_resource_path(std::filesystem::path& path) {
   Result get_executable_path_res = get_executable_path(path);
   if (get_executable_path_res != Result::SUCCESS) {
     return get_executable_path_res;
@@ -14,6 +14,8 @@ Result get_resource_path(std::filesystem::path& path) {
 
   return Result::SUCCESS;
 }
+
+const char* Resources::SHADER_PATH = "shaders";
 
 #ifdef PLATFORM_LINUX
 Result get_executable_path(std::filesystem::path& path) {
