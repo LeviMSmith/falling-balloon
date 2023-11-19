@@ -29,12 +29,16 @@ GLEW_DIR := vendor/glew-2.2.0
 GLEW_LIB := $(GLEW_DIR)/lib/libGLEW.a
 GLEW_INCLUDE := $(GLEW_DIR)/include
 
+# GLM
+GLM_DIR := vendor/glm
+GLM_INCLUDE := $(GLM_DIR)
+
 # Compiler options (default to clang)
 CC := /usr/bin/clang
 CXX := /usr/bin/clang++
 
 # Compiler and linker flags
-CFLAGS := -I$(SRCDIR) -I$(GLFW_INCLUDE) -I$(GLEW_INCLUDE) -MMD -Wall -Wunused-result -std=c++20
+CFLAGS := -I$(SRCDIR) -I$(GLFW_INCLUDE) -I$(GLEW_INCLUDE) -I$(GLM_INCLUDE) -MMD -Wall -Wunused-result -std=c++20
 DFLAGS := -DPLATFORM_LINUX -DRESOURCE_DIR=\"$(RESOURCEDIR)\"
 LDFLAGS := -lX11 -lGL
 ifeq ($(BUILD_TYPE), release)
@@ -77,7 +81,7 @@ $(BUILDDIR) $(GLFW_BUILD_DIR) $(TARGETDIR) $(RESOURCETARGETDIR):
 
 .PHONY: cmake_config
 cmake_config: | $(GLFW_BUILD_DIR)
-	cd $(GLFW_DIR) && cmake -S . -B $(GLFW_BUILD_DIR) -DBUILD_SHARED_LIBS=OFF -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_DOCS=OFF -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
+	@cd $(GLFW_DIR) && cmake -S . -B $(GLFW_BUILD_DIR) -DBUILD_SHARED_LIBS=OFF -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_DOCS=OFF -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
 
 .PHONY: resources
 resources: $(RESOURCE_FILES) | $(TARGETDIR)
