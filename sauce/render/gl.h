@@ -49,6 +49,7 @@ private:
 
   Pipeline chunk_pipeline;
   Result prepare_chunk_pipeline();
+  void cleanup_chunk_pipeline();
   void draw_chunk_components(const std::vector<Mesh>& chunk_meshes);
 };
 

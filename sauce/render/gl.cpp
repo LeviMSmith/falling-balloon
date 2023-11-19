@@ -39,6 +39,7 @@ Result GlBackend::create(GlBackend*& gl_backend, GLFWwindow* glfw_window) {
 
 void GlBackend::destroy(GlBackend*& gl_backend) {
   if (gl_backend != nullptr) {
+    gl_backend->cleanup_chunk_pipeline();
     delete gl_backend;
     gl_backend = nullptr;
   }
@@ -161,6 +162,14 @@ Result GlBackend::prepare_chunk_pipeline() {
   chunk_pipeline.buffers.push_back(GLSLbuffer {vbo, vao, GLSLbufferType::VERTEX});
 
   return Result::SUCCESS;
+}
+
+void GlBackend::cleanup_chunk_pipeline() {
+  GLuint vbo = chunk_pipeline.buffers[0].buffer;
+  GLuint vao = chunk_pipeline.buffers[0].attribute_object;
+
+  glDeleteVertexArrays(1, &vao);
+  glDeleteBuffers(1, &vbo);
 }
 
 void GlBackend::draw_chunk_components(const std::vector<Mesh>& chunk_meshes) {

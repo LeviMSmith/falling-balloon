@@ -4,7 +4,7 @@
 #include "render/mesh.h"
 #include "utils/math/dim.h"
 
-void generate_face_verticies(std::vector<Mesh::Vertex>& verticies, u8 side, u8 x, u8 y, u8 z);
+void generate_face_vertices(std::vector<Mesh::Vertex>& vertices, u8 side, u8 x, u8 y, u8 z);
 
 namespace Components {
   Result Chunk::create(Chunk& chunk) {
@@ -56,11 +56,11 @@ namespace Components {
               if (!z_out_of_chunk && !y_out_of_chunk && !x_out_of_chunk) {
                 Cell neighbor_cell = cells[Dim::threed_to_oned<size_t, u8>(neighbor_x, neighbor_y, neighbor_z, CHUNK_COMPONENT_CELL_WIDTH, CHUNK_COMPONENT_CELL_WIDTH)];
                 if (neighbor_cell == Cell::NONE) {
-                  generate_face_verticies(return_mesh.verticies, side, x, y, z);
+                  generate_face_vertices(return_mesh.verticies, side, x, y, z);
                 }
               }
               else {
-                generate_face_verticies(return_mesh.verticies, side, x, y, z);
+                generate_face_vertices(return_mesh.verticies, side, x, y, z);
               }
             }
           }
@@ -73,7 +73,7 @@ namespace Components {
 }
 
 
-void generate_face_vertices(std::vector<Mesh::Vertex>& vertices, int side, u8 x, u8 y, u8 z) {
+void generate_face_vertices(std::vector<Mesh::Vertex>& vertices, u8 side, u8 x, u8 y, u8 z) {
     // Define the offset for each vertex of the face
     static const glm::vec3 offsets[6][4] = {
         {{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}}, // Bottom

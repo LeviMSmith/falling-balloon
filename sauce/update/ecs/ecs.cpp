@@ -154,7 +154,7 @@ Result ECS::create_entity_chunk(EntityID& entity_id) {
 
 Result ECS::get_entity_id(EntityID& id) {
   static EntityID current_entity = 1;
-  static std::pair<std::set<EntityID>::iterator, bool> result;
+  static std::pair<std::unordered_set<EntityID>::iterator, bool> result;
 
   EntityID start_entity = current_entity;
   do {
