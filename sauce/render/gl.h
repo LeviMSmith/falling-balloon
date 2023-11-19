@@ -7,6 +7,7 @@
 
 #include <filesystem>
 #include <string>
+#include <vector>
 
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
@@ -14,12 +15,11 @@
 struct GLSLbuffer {
   GLuint buffer;
   GLenum type;
-  GLSLbuffer* pnext;
 };
 
 struct Pipeline {
   GLuint shader_program;
-  GLSLbuffer* first_buffer;
+  std::vector<GLSLbuffer> buffers;
 };
 
 class GlBackend {
