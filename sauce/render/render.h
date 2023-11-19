@@ -13,6 +13,7 @@
 #include "GLFW/glfw3.h"
 
 #include <vector>
+#include <unordered_map>
 
 class Render {
 public:
@@ -28,7 +29,7 @@ private:
   public:
     ChunkHandler() : mesh_cache(LRUcache<EntityID, Mesh>(MAX_CHUNK_ENTITIES)) {}
 
-    std::vector<Mesh> get_chunk_meshes(const std::vector<EntityID>& entity_ids, const ECS* const ecs);
+    std::unordered_map<EntityID, Mesh> get_chunk_meshes(const std::vector<EntityID>& entity_ids, const ECS* const ecs);
 
   private:
     LRUcache<EntityID, Mesh> mesh_cache;

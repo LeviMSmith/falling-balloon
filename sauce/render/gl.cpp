@@ -7,9 +7,12 @@
 #include <filesystem>
 #include <string>
 #include <fstream>
+#include <vector>
+#include <unordered_map>
 
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
 
 Result GlBackend::create(GlBackend*& gl_backend, GLFWwindow* glfw_window) {
   gl_backend = new GlBackend;
@@ -28,7 +31,7 @@ Result GlBackend::create(GlBackend*& gl_backend, GLFWwindow* glfw_window) {
 
   gl_backend->handle_resize();
 
-  Result chunk_pipeline_prepare_res = gl_backend->prepare_chunk_pipeline();
+  Result chunk_pipeline_prepare_res = gl_backend->chunk_pipeline.prepare();
   if (chunk_pipeline_prepare_res != Result::SUCCESS) {
     GlBackend::destroy(gl_backend);
     return chunk_pipeline_prepare_res;
@@ -39,7 +42,7 @@ Result GlBackend::create(GlBackend*& gl_backend, GLFWwindow* glfw_window) {
 
 void GlBackend::destroy(GlBackend*& gl_backend) {
   if (gl_backend != nullptr) {
-    gl_backend->cleanup_chunk_pipeline();
+    gl_backend->chunk_pipeline.cleanup();
     delete gl_backend;
     gl_backend = nullptr;
   }
@@ -48,7 +51,8 @@ void GlBackend::destroy(GlBackend*& gl_backend) {
 Result GlBackend::draw(DrawInfo& draw_info) {
   glClear(GL_COLOR_BUFFER_BIT);
 
-  draw_chunk_components(draw_info.chunk_meshes);
+  chunk_pipeline.update(draw_info.updated_chunk_meshes);
+  chunk_pipeline.draw();
 
   return Result::SUCCESS;
 }
@@ -109,7 +113,7 @@ Result GlBackend::compile_shader(GLuint& shader, const char* source, GLenum type
   return Result::SUCCESS;
 }
 
-Result GlBackend::prepare_chunk_pipeline() {
+Result GlBackend::ChunkPipeline::prepare() {
   std::filesystem::path resource_dir, vertex_shader_path, fragment_shader_path;
   Resources::get_resource_path(resource_dir);
   vertex_shader_path = resource_dir / Resources::SHADER_PATH / "chunk.vert.glsl";
@@ -128,16 +132,16 @@ Result GlBackend::prepare_chunk_pipeline() {
     return Result::FAILURE_GLSL_SHADER_COMPILE;
   }
 
-  chunk_pipeline.shader_program = glCreateProgram();
-  glAttachShader(chunk_pipeline.shader_program, vertex_shader);
-  glAttachShader(chunk_pipeline.shader_program, fragment_shader);
-  glLinkProgram(chunk_pipeline.shader_program);
+  shader_program = glCreateProgram();
+  glAttachShader(shader_program, vertex_shader);
+  glAttachShader(shader_program, fragment_shader);
+  glLinkProgram(shader_program);
 
   GLint success;
   GLchar info_log[1024];
-  glGetProgramiv(chunk_pipeline.shader_program, GL_LINK_STATUS, &success);
+  glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
   if (!success) {
-    glGetProgramInfoLog(chunk_pipeline.shader_program, 1024, NULL, info_log);
+    glGetProgramInfoLog(shader_program, 1024, NULL, info_log);
     LOG_ERROR("Failed to link chunk pipeline program");
     LOG_ERROR(info_log);
   }
@@ -146,11 +150,9 @@ Result GlBackend::prepare_chunk_pipeline() {
   glDeleteShader(fragment_shader);
 
   // Now the objects the pipeline uses
-  GLuint vbo;
   glGenBuffers(1, &vbo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-  GLuint vao;
   glGenVertexArrays(1, &vao);
   glBindVertexArray(vao);
 
@@ -159,23 +161,22 @@ Result GlBackend::prepare_chunk_pipeline() {
 
   glBindVertexArray(0);
 
-  chunk_pipeline.buffers.push_back(GLSLbuffer {vbo, vao, GLSLbufferType::VERTEX});
-
   return Result::SUCCESS;
 }
 
-void GlBackend::cleanup_chunk_pipeline() {
-  GLuint vbo = chunk_pipeline.buffers[0].buffer;
-  GLuint vao = chunk_pipeline.buffers[0].attribute_object;
-
+void GlBackend::ChunkPipeline::cleanup() {
   glDeleteVertexArrays(1, &vao);
   glDeleteBuffers(1, &vbo);
 }
 
-void GlBackend::draw_chunk_components(const std::vector<Mesh>& chunk_meshes) {
-  glUseProgram(chunk_pipeline.shader_program);
-  for (const Mesh& mesh : chunk_meshes) {
+void GlBackend::ChunkPipeline::update(const std::unordered_map<EntityID, Mesh>& chunk_meshes) {
 
+}
+
+void GlBackend::ChunkPipeline::draw() {
+  glUseProgram(chunk_pipeline.shader_program);
+  glm::mat model = glm::mat4(1.0f);
+  for (const Mesh& mesh : chunk_meshes) {
     GLuint vbo = chunk_pipeline.buffers[0].buffer;
     GLuint vao = chunk_pipeline.buffers[0].attribute_object;
     std::vector<Mesh::Vertex> vertices = mesh.verticies;

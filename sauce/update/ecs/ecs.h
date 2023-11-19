@@ -3,7 +3,7 @@
 
 #include "core.h"
 
-#include "utils/math/vec.h"
+#include "utils/data-structures/lru-cache.h"
 
 #include "update/ecs/entity.h"
 
@@ -21,6 +21,8 @@
 
 class ECS {
 public:
+  ECS() : mesh_components(LRUcache<EntityID, Mesh>(MAX_MESH_COMPONENTS)) {}
+
   static Result create(ECS*& ecs);
   static void destroy(ECS* ecs);
 
@@ -42,11 +44,14 @@ private:
   Result get_entity_id(EntityID& id);
 
   // Components
+  // With serialization, these should be turned to caches
+  // and flush to disk when overrun.
   std::unordered_map<EntityID, Components::Pos> pos_components;
   std::unordered_map<EntityID, Components::Kinetic> kinetic_components;
   std::unordered_map<EntityID, Components::Camera> camera_components;
   std::unordered_map<EntityID, Components::GraphicsPipeline> graphics_pipeline_components;
   std::unordered_map<EntityID, Components::Chunk> chunk_components;
+  LRUcache<EntityID, Mesh> mesh_components;
 
   friend class Render;
   friend class Update;

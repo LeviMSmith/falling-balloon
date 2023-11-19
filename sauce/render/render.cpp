@@ -83,7 +83,7 @@ Result Render::draw(Events* events, const ECS* const ecs) {
 
   DrawInfo draw_info;
   std::vector<EntityID> chunks_to_render = get_chunks_to_render(ecs);
-  draw_info.chunk_meshes = chunk_handler.get_chunk_meshes(chunks_to_render, ecs);
+  draw_info.updated_chunk_meshes = chunk_handler.get_chunk_meshes(chunks_to_render, ecs);
 
   return gl_backend->draw(draw_info);
 }
@@ -96,15 +96,15 @@ void Render::get_glfw_window(GLFWwindow*& glfw_window) {
   glfw_window = this->glfw_window;
 }
 
-std::vector<Mesh> Render::ChunkHandler::get_chunk_meshes(const std::vector<EntityID>& entity_ids, const ECS* const ecs) {
-  std::vector<Mesh> return_meshes;
+std::unordered_map<EntityID, Mesh> Render::ChunkHandler::get_chunk_meshes(const std::vector<EntityID>& entity_ids, const ECS* const ecs) {
+  std::unordered_map<EntityID, Mesh> return_meshes;
 
   Mesh mesh;
   std::unordered_map<EntityID, std::future<Mesh>> mesh_futures;
 
   for (EntityID entity_id : entity_ids) {
     if (mesh_cache.get(entity_id, mesh)) {
-      return_meshes.push_back(mesh);
+      return_meshes[entity_id] = mesh;
     }
     else {
       Components::Chunk chunk = ecs->chunk_components.at(entity_id);
@@ -115,7 +115,7 @@ std::vector<Mesh> Render::ChunkHandler::get_chunk_meshes(const std::vector<Entit
 
   for (auto& mesh_future : mesh_futures) {
     mesh = mesh_future.second.get();
-    return_meshes.push_back(mesh);
+    return_meshes[mesh_future.first] = mesh;
     mesh_cache.put(mesh_future.first, mesh);
   }
 

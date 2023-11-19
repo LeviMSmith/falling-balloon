@@ -9,27 +9,13 @@
 #include <filesystem>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
 struct DrawInfo {
-  std::vector<Mesh> chunk_meshes;
-};
-
-enum GLSLbufferType {
-  VERTEX,
-};
-
-struct GLSLbuffer {
-  GLuint buffer;
-  GLuint attribute_object;
-  GLSLbufferType type;
-};
-
-struct Pipeline {
-  GLuint shader_program;
-  std::vector<GLSLbuffer> buffers;
+  std::unordered_map<EntityID, Mesh> updated_chunk_meshes;
 };
 
 class GlBackend {
@@ -47,10 +33,19 @@ private:
   static Result load_shader_source(std::string& source, std::filesystem::path shader_path);
   static Result compile_shader(GLuint& shader, const char* source, GLenum type);
 
-  Pipeline chunk_pipeline;
-  Result prepare_chunk_pipeline();
-  void cleanup_chunk_pipeline();
-  void draw_chunk_components(const std::vector<Mesh>& chunk_meshes);
+  class ChunkPipeline {
+  public:
+    GLuint shader_program;
+    GLuint vbo;
+    GLuint vao;
+    std::unordered_map<EntityID, Mesh> chunk_meshses;
+    Result prepare();
+    void cleanup();
+    void update(const std::unordered_map<EntityID, Mesh>& chunk_meshes);
+    void draw();
+  };
+
+  ChunkPipeline chunk_pipeline;
 };
 
 #endif

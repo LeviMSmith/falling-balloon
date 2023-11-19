@@ -78,8 +78,8 @@ Result ECS::add_component_to_entity(EntityID entity_id, ComponentType component_
       break;
     }
     case ComponentType::CAMERA: {
-      Components::Camera& camera = camera_components[entity_id];
-      component_create_res = Components::Camera::create(camera);
+      camera_components[entity_id] = Components::Camera();
+      component_create_res = Result::SUCCESS;
       break;
     }
     case ComponentType::GRAPHICS_PIPELINE: {
@@ -118,8 +118,6 @@ void ECS::remove_component_from_entity(EntityID entity_id, ComponentType compone
       break;
     }
     case ComponentType::CAMERA: {
-      Components::Camera& camera = camera_components[entity_id];
-      Components::Camera::destroy(camera);
       break;
     }
     case ComponentType::GRAPHICS_PIPELINE: {

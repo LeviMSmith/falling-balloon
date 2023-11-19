@@ -3,17 +3,22 @@
 
 #include "core.h"
 
-#include "utils/math/vec.h"
+#include "glm/glm.hpp"
 
 namespace Components {
-  class Camera {
-  public:
-    Vec3<f32> pos;
-    Vec3<f32> rotation;
+struct Camera {
+  Camera()
+      : eye(glm::vec3(-1.0f, -1.0f, -1.0f)),
+        center(glm::vec3(0.0f, 0.0f, 0.0f)), 
+        up(glm::vec3(0.0f, 1.0f, 0.0f)) {
+          update_view();
+        }
 
-    static Result create(Camera& camera);
-    static void destroy(Camera& camera);
-  };
-}
+  glm::vec3 eye, center, up;
+  glm::mat4 view;
+
+  void update_view();
+};
+} // namespace Components
 
 #endif // CAMERA_H_
