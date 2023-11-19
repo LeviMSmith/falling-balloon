@@ -150,5 +150,7 @@ Result GlBackend::prepare_chunk_pipeline() {
 void GlBackend::draw_chunk_components(const ECS* const ecs) {
   glUseProgram(chunk_pipeline.shader_program);
 
+  glDrawArrays(GL_TRIANGLES, 0, 3);
+
   glUseProgram(0);
 }
