@@ -85,16 +85,16 @@ void generate_face_vertices(std::vector<Mesh::Vertex>& vertices, int side, u8 x,
     };
 
     // Calculate the base position of the cell
-    glm::vec3 basePosition(x, y, z);
+    glm::vec3 base_position(x, y, z);
 
     // Add vertices for each face (two triangles)
-    const glm::vec3* faceOffsets = offsets[side];
-    vertices.push_back(Mesh::Vertex{basePosition + faceOffsets[0]});
-    vertices.push_back(Mesh::Vertex{basePosition + faceOffsets[1]});
-    vertices.push_back(Mesh::Vertex{basePosition + faceOffsets[2]});
+    const glm::vec3* face_offsets = offsets[side];
+    vertices.push_back(Mesh::Vertex{base_position + face_offsets[0]});
+    vertices.push_back(Mesh::Vertex{base_position + face_offsets[1]});
+    vertices.push_back(Mesh::Vertex{base_position + face_offsets[2]});
 
-    vertices.push_back(Mesh::Vertex{basePosition + faceOffsets[2]});
-    vertices.push_back(Mesh::Vertex{basePosition + faceOffsets[3]});
-    vertices.push_back(Mesh::Vertex{basePosition + faceOffsets[0]});
+    vertices.push_back(Mesh::Vertex{base_position + face_offsets[2]});
+    vertices.push_back(Mesh::Vertex{base_position + face_offsets[3]});
+    vertices.push_back(Mesh::Vertex{base_position + face_offsets[0]});
 }
 

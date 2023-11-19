@@ -4,6 +4,7 @@
 #include "core.h"
 
 #include "update/ecs/ecs.h"
+#include "render/mesh.h"
 
 #include <filesystem>
 #include <string>
@@ -12,9 +13,18 @@
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
+struct DrawInfo {
+  std::vector<Mesh> chunk_meshes;
+};
+
+enum GLSLbufferType {
+  VERTEX,
+};
+
 struct GLSLbuffer {
   GLuint buffer;
-  GLenum type;
+  GLuint attribute_object;
+  GLSLbufferType type;
 };
 
 struct Pipeline {
@@ -27,7 +37,7 @@ public:
   static Result create(GlBackend*& gl_backend, GLFWwindow* glfw_window);
   static void destroy(GlBackend*& gl_backend);
 
-  Result draw(const ECS* const ecs);
+  Result draw(DrawInfo& draw_info);
   Result present();
 
   void handle_resize(int width = 0, int height = 0);
@@ -39,7 +49,7 @@ private:
 
   Pipeline chunk_pipeline;
   Result prepare_chunk_pipeline();
-  void draw_chunk_components(const ECS* const ecs);
+  void draw_chunk_components(const std::vector<Mesh>& chunk_meshes);
 };
 
 #endif

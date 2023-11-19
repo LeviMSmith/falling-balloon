@@ -6,17 +6,20 @@
 #include "utils/config/config.h"
 #include "utils/data-structures/lru-cache.h"
 #include "render/gl.h"
+#include "render/mesh.h"
 #include "event/event.h"
 #include "update/ecs/ecs.h"
 
 #include "GLFW/glfw3.h"
+
+#include <vector>
 
 class Render {
 public:
   static Result create(Render*& render, const Config* const config);
   static void destroy(Render*& render);
 
-  Result draw(Events* events, ECS* ecs);
+  Result draw(Events* events, const ECS* const ecs);
   Result present();
 
   void get_glfw_window(GLFWwindow*& glfw_window);
@@ -25,7 +28,7 @@ private:
   public:
     ChunkHandler() : mesh_cache(LRUcache<EntityID, Mesh>(MAX_CHUNK_ENTITIES)) {}
 
-    Result get_chunk_meshes(std::vector<EntityID>& entity_ids, ECS* ecs);
+    std::vector<Mesh> get_chunk_meshes(const std::vector<EntityID>& entity_ids, const ECS* const ecs);
 
   private:
     LRUcache<EntityID, Mesh> mesh_cache;
@@ -37,6 +40,8 @@ private:
   ChunkHandler chunk_handler;
 
   int frame_buffer_width, frame_buffer_height;
+
+  std::vector<EntityID> get_chunks_to_render(const ECS* const ecs);
 };
 
 #endif // RENDER_H_
