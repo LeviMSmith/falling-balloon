@@ -8,56 +8,64 @@
 #include <condition_variable>
 #include <functional>
 #include <future>
+#include <memory>
 
-constexpr u8 NUM_THREADS = 3;
+struct ThreadPoolState {
+  std::vector<std::thread> workers;
+  std::queue<std::function<void()>> tasks;
 
-Result ThreadPool::create(ThreadPool*& thread_pool) {
-  thread_pool = new ThreadPool;
+  std::mutex eventMutex;
+  std::condition_variable eventVar;
+  bool stopping = false;
+};
 
-  thread_pool->start(NUM_THREADS);
+std::unique_ptr<ThreadPoolState> thread_pool_state = std::make_unique<ThreadPoolState>();
 
-  return Result::SUCCESS;
-}
-
-void ThreadPool::destroy(ThreadPool*& thread_pool) {
-  if (thread_pool != nullptr) {
-    thread_pool->stop();
-    delete thread_pool;
-  }
-}
-
-void ThreadPool::start(size_t num_threads) {
+Result ThreadPool::start(size_t num_threads) {
   for (size_t i = 0; i < num_threads; i++) {
-    workers.emplace_back([=] {
+    thread_pool_state->workers.emplace_back([=] {
       while (true) {
         std::function<void()> task;
 
         {
-          std::unique_lock<std::mutex> lock{eventMutex};
-          eventVar.wait(lock, [=] { return stopping || !tasks.empty(); });
-          if (stopping && tasks.empty()) {
+          std::unique_lock<std::mutex> lock{thread_pool_state->eventMutex};
+          thread_pool_state->eventVar.wait(lock, [=] { return thread_pool_state->stopping || !thread_pool_state->tasks.empty(); });
+          if (thread_pool_state->stopping && thread_pool_state->tasks.empty()) {
             break;
           }
 
-          task = std::move(tasks.front());
-          tasks.pop();
+          task = std::move(thread_pool_state->tasks.front());
+          thread_pool_state->tasks.pop();
         }
 
         task();
       }
     });
   }
+
+  return Result::SUCCESS;
 }
 
 void ThreadPool::stop() noexcept {
   {
-    std::unique_lock<std::mutex> lock{eventMutex};
-    stopping = true;
+    std::unique_lock<std::mutex> lock{thread_pool_state->eventMutex};
+    thread_pool_state->stopping = true;
   }
 
-  eventVar.notify_all();
+  thread_pool_state->eventVar.notify_all();
 
-  for (auto &thread : workers) {
+  for (auto &thread : thread_pool_state->workers) {
     thread.join();
   }
+}
+
+template <class T> auto enqueue(T task) -> std::future<decltype(task())> {
+  auto wrapper = std::make_shared<std::packaged_task<decltype(task())()>>(
+      std::move(task));
+  {
+    std::unique_lock<std::mutex> lock{thread_pool_state->eventMutex};
+    thread_pool_state->tasks.emplace([=] { (*wrapper)(); });
+  }
+  thread_pool_state->eventVar.notify_one();
+  return wrapper->get_future();
 }

@@ -1,6 +1,7 @@
 #include "core.h"
 #include "app.h"
 #include "utils/config/args.h"
+#include "utils/threadpool.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -23,6 +24,8 @@ int main(int argc, char* argv[]) {
       return log_init_result;
     }
 
+    ThreadPool::start();
+
     App* app = nullptr;
     Result app_create_result = App::create(app, args);
     if (app_create_result != Result::SUCCESS) {
@@ -34,6 +37,7 @@ int main(int argc, char* argv[]) {
 
     Result app_run_result = app->run();
 
+    ThreadPool::stop();
     App::destroy(app);
     Args::destroy(args);
 
