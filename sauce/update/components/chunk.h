@@ -8,13 +8,19 @@
 
 #include <set>
 
+enum Cell: u8 {
+  NONE,
+  DIRT,
+};
+
 namespace Components {
   constexpr size_t CHUNK_COMPONENT_CELL_WIDTH = 16;
+  constexpr size_t CHUNK_COMPONENT_NUM_CELLS = CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH;
 
   class Chunk {
   public:
     std::set<EntityID> entities;
-    u8 cells[CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH];
+    Cell cells[CHUNK_COMPONENT_NUM_CELLS];
 
     static Result create(Chunk& chunk);
     static void destroy(Chunk& chunk);
