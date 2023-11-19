@@ -5,13 +5,13 @@
 
 #include "utils/data-structures/lru-cache.h"
 
-#include "update/ecs/entity.h"
+#include "ecs/entity.h"
 
-#include "update/components/camera.h"
-#include "update/components/chunk.h"
-#include "update/components/graphics_pipline.h"
-#include "update/components/kinetic.h"
-#include "update/components/pos.h"
+#include "ecs/components/camera.h"
+#include "ecs/components/chunk.h"
+#include "ecs/components/graphics_pipline.h"
+#include "ecs/components/kinetic.h"
+#include "ecs/components/pos.h"
 
 #include <map>
 #include <unordered_map>

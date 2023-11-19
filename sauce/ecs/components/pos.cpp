@@ -1,5 +1,5 @@
 #include "core.h"
-#include "update/components/pos.h"
+#include "ecs/components/pos.h"
 
 namespace Components {
   Result Pos::create(Pos& pos) {

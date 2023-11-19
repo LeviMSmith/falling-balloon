@@ -1,7 +1,7 @@
 #include "core.h"
 #include "render/gl.h"
 
-#include "update/ecs/ecs.h"
+#include "ecs/ecs.h"
 #include "utils/resources.h"
 
 #include <filesystem>

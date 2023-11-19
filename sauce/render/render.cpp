@@ -3,7 +3,7 @@
 
 #include "utils/config/config.h"
 #include "utils/threadpool.h"
-#include "update/components/chunk.h"
+#include "ecs/components/chunk.h"
 #include "render/gl.h"
 
 #include "GLFW/glfw3.h"

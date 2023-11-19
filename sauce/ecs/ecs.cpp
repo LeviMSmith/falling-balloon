@@ -1,12 +1,12 @@
 #include "core.h"
 
-#include "update/ecs/ecs.h"
+#include "ecs/ecs.h"
 
-#include "update/components/camera.h"
-#include "update/components/chunk.h"
-#include "update/components/graphics_pipline.h"
-#include "update/components/kinetic.h"
-#include "update/components/pos.h"
+#include "ecs/components/camera.h"
+#include "ecs/components/chunk.h"
+#include "ecs/components/graphics_pipline.h"
+#include "ecs/components/kinetic.h"
+#include "ecs/components/pos.h"
 
 #include <set>
 

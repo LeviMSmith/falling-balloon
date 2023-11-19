@@ -8,7 +8,7 @@
 #include "render/gl.h"
 #include "render/mesh.h"
 #include "event/event.h"
-#include "update/ecs/ecs.h"
+#include "ecs/ecs.h"
 
 #include "GLFW/glfw3.h"
 

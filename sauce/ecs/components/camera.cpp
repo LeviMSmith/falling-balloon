@@ -1,5 +1,5 @@
 #include "core.h"
-#include "update/components/camera.h"
+#include "ecs/components/camera.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"

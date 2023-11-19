@@ -3,7 +3,7 @@
 
 #include "core.h"
 
-#include "update/ecs/ecs.h"
+#include "ecs/ecs.h"
 #include "render/mesh.h"
 
 #include <filesystem>

@@ -4,7 +4,7 @@
 #include "core.h"
 
 #include "render/mesh.h"
-#include "update/ecs/entity.h"
+#include "ecs/entity.h"
 
 #include <set>
 
