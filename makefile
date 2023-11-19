@@ -39,7 +39,7 @@ CXX := /usr/bin/clang++
 
 # Compiler and linker flags
 CFLAGS := -I$(SRCDIR) -I$(GLFW_INCLUDE) -I$(GLEW_INCLUDE) -I$(GLM_INCLUDE) -MMD -Wall -Wunused-result -std=c++20
-DFLAGS := -DPLATFORM_LINUX -DRESOURCE_DIR=\"$(RESOURCEDIR)\"
+DFLAGS := -DPLATFORM_LINUX -DGLEW_STATIC -DGLFW_INCLUDE_NONE -DRESOURCE_DIR=\"$(RESOURCEDIR)\"
 LDFLAGS := -lX11 -lGL
 ifeq ($(BUILD_TYPE), release)
     CFLAGS += -O2

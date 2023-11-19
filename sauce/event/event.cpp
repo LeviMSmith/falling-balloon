@@ -3,7 +3,7 @@
 
 #include "GLFW/glfw3.h"
 
-Events events;
+WindowEvents events;
 
 void error_callback(int error_code, const char* description);
 void window_close_callback(GLFWwindow* window);
@@ -30,7 +30,7 @@ void EventHandler::destroy(EventHandler*& event_handler) {
   }
 }
 
-void EventHandler::get_events(Events* out_events) {
+void EventHandler::get_events(WindowEvents* out_events) {
   clear_events();
   glfwPollEvents();
 
@@ -38,7 +38,7 @@ void EventHandler::get_events(Events* out_events) {
 }
 
 void EventHandler::clear_events() {
-  events.window_events.clear();
+  events.events.clear();
 }
 
 void error_callback(int error_code, const char* description) {
@@ -46,20 +46,20 @@ void error_callback(int error_code, const char* description) {
 }
 
 void window_close_callback(GLFWwindow* window) {
-  events.window_events.push_back(Event::WINDOW_SHOULD_CLOSE);
+  events.events.push_back(WindowEvent::SHOULD_CLOSE);
 }
 
 void window_resize_callback(GLFWwindow* window, int width, int height) {
-  events.window_events.push_back(Event::WINDOW_RESIZED);
+  events.events.push_back(WindowEvent::RESIZED);
   events.window_size.width = width;
   events.window_size.height = height;
 }
 
 void window_maximized_callback(GLFWwindow* window, int maximized) {
   if (maximized) {
-    events.window_events.push_back(Event::WINDOW_MAXIMIZED);
+    events.events.push_back(WindowEvent::MAXIMIZED);
   }
   else {
-    events.window_events.push_back(Event::WINDOW_UNMAXIMIZED);
+    events.events.push_back(WindowEvent::UNMAXIMIZED);
   }
 }

@@ -40,7 +40,8 @@ enum ComponentType: u32 {
     KINETIC = 1 << 1,
     CAMERA = 1 << 2,
     GRAPHICS_PIPELINE = 1 << 3,
-    CHUNK = 1 << 4
+    CHUNK = 1 << 4,
+    MESH = 1 << 5
 };
 
 constexpr u8 NUM_COMPONENT_TYPES = 5;

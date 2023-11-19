@@ -22,10 +22,12 @@ private:
   Args* args;
   Config* config;
 
+  ECS* ecs;
   Update* update;
   Render* render;
   EventHandler* event_handler;
-  Events events;
+  WindowEvents window_events;
+  RenderEvents render_events;
 };
 
 #endif // APP_H_

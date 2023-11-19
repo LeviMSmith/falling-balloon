@@ -3,7 +3,6 @@
 #include "utils/config/args.h"
 #include "utils/threadpool.h"
 
-#include <stdlib.h>
 #include <stdio.h>
 
 int main(int argc, char* argv[]) {
@@ -32,8 +31,6 @@ int main(int argc, char* argv[]) {
         LOG_FATAL("Couldn't create app! Exiting.");
         return app_create_result;
     }
-
-    LOG_INFO(argv[0]);
 
     Result app_run_result = app->run();
 

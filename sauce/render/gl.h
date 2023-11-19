@@ -15,7 +15,10 @@
 #include "GLFW/glfw3.h"
 
 struct DrawInfo {
-  std::unordered_map<EntityID, Mesh> updated_chunk_meshes;
+  std::vector<Mesh> new_chunk_meshes;
+  glm::mat4 new_view;
+
+  void clear();
 };
 
 class GlBackend {
@@ -35,17 +38,25 @@ private:
 
   class ChunkPipeline {
   public:
-    GLuint shader_program;
+    ChunkPipeline();
+    ~ChunkPipeline();
+
+    static GLuint shader_program;
+    static GLuint model_location;
+    static GLuint view_location;
+    static GLuint projection_location;
     GLuint vbo;
     GLuint vao;
-    std::unordered_map<EntityID, Mesh> chunk_meshses;
-    Result prepare();
-    void cleanup();
-    void update(const std::unordered_map<EntityID, Mesh>& chunk_meshes);
-    void draw();
+    glm::mat4 model;
+    size_t num_verticies;
+
+    void update(const Mesh& mesh);
+    void draw() const;
+
+    static Result create_shader_program();
   };
 
-  ChunkPipeline chunk_pipeline;
+  std::vector<ChunkPipeline> chunk_pipelines;
 };
 
 #endif

@@ -33,10 +33,11 @@ public:
   void remove_component_from_entity(EntityID entity,
                                       ComponentType component_type);
 
+  std::vector<Mesh> get_chunk_mesh_component_batch(const std::vector<EntityID>& entity_ids);
+
   // Factory functions
   Result create_entity_player(EntityID& entity_id);
   Result create_entity_chunk(EntityID& entity_id);
-
 private:
   Entity entities[MAX_TOTAL_ENTITIES];
   std::unordered_set<EntityID> entity_id_pool;

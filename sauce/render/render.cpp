@@ -64,27 +64,52 @@ void Render::destroy(Render*& render) {
   }
 }
 
-Result Render::draw(Events* events, const ECS* const ecs) {
-  for (Event event : events->window_events) {
+Result Render::draw(WindowEvents* window_events, RenderEvents* render_events, ECS* ecs) {
+  for (WindowEvent event : window_events->events) {
     switch (event) {
-      case Event::WINDOW_SHOULD_CLOSE: {
+      case WindowEvent::SHOULD_CLOSE: {
         return Result::RENDER_WINDOW_SHOULD_CLOSE;
       }
-      case Event::WINDOW_RESIZED:
-        frame_buffer_width = events->window_size.width;
-        frame_buffer_height = events->window_size.height;
+      case WindowEvent::RESIZED:
+        frame_buffer_width = window_events->window_size.width;
+        frame_buffer_height = window_events->window_size.height;
         gl_backend->handle_resize(frame_buffer_width, frame_buffer_height);
         break;
-      case Event::WINDOW_MAXIMIZED:
-      case Event::WINDOW_UNMAXIMIZED:
+      case WindowEvent::MAXIMIZED:
+      case WindowEvent::UNMAXIMIZED:
         break;
     }
   }
 
-  DrawInfo draw_info;
-  std::vector<EntityID> chunks_to_render = get_chunks_to_render(ecs);
-  draw_info.updated_chunk_meshes = chunk_handler.get_chunk_meshes(chunks_to_render, ecs);
+  bool update_chunk_pipeline = false;
+  for (RenderEvent event : render_events->events) {
+    switch (event) {
+      case RenderEvent::CAMERA_UPDATED: {
+        std::vector<EntityID> list_chunks_in_view = get_loaded_chunks_in_view(ecs);
+        chunks_in_view = std::unordered_set<EntityID>(list_chunks_in_view.begin(), list_chunks_in_view.end());
+        break;
+      }
+      case RenderEvent::CHUNK_MESH_INVALIDATED: {
+        // Chunks in view could be updated after this, but this works for now.
+        for (EntityID entity_id : render_events->invalidated_chunk_meshes) {
+          if (chunks_in_view.contains(entity_id)) {
+            update_chunk_pipeline = true;
+          }
+        }
+        break;
+      }
+    }
+  }
 
+  draw_info.clear();
+
+  if (update_chunk_pipeline) {
+    std::vector<EntityID> chunks_in_view_list(chunks_in_view.begin(), chunks_in_view.end());
+    draw_info.new_chunk_meshes = ecs->get_chunk_mesh_component_batch(chunks_in_view_list);
+    
+    chunks_in_pipeline = chunks_in_view;
+  }
+  
   return gl_backend->draw(draw_info);
 }
 
@@ -94,40 +119,4 @@ Result Render::present() {
 
 void Render::get_glfw_window(GLFWwindow*& glfw_window) {
   glfw_window = this->glfw_window;
-}
-
-std::unordered_map<EntityID, Mesh> Render::ChunkHandler::get_chunk_meshes(const std::vector<EntityID>& entity_ids, const ECS* const ecs) {
-  std::unordered_map<EntityID, Mesh> return_meshes;
-
-  Mesh mesh;
-  std::unordered_map<EntityID, std::future<Mesh>> mesh_futures;
-
-  for (EntityID entity_id : entity_ids) {
-    if (mesh_cache.get(entity_id, mesh)) {
-      return_meshes[entity_id] = mesh;
-    }
-    else {
-      Components::Chunk chunk = ecs->chunk_components.at(entity_id);
-      auto task = std::bind(&Components::Chunk::generate_mesh, &chunk);
-      mesh_futures[entity_id] = ThreadPool::enqueue(task);
-    }
-  }
-
-  for (auto& mesh_future : mesh_futures) {
-    mesh = mesh_future.second.get();
-    return_meshes[mesh_future.first] = mesh;
-    mesh_cache.put(mesh_future.first, mesh);
-  }
-
-  return return_meshes;
-}
-
-std::vector<EntityID> Render::get_chunks_to_render(const ECS* const ecs) {
-  std::vector<EntityID> return_entities;
-
-  for (const auto& [entity_id, chunk] : ecs->chunk_components)  {
-    return_entities.push_back(entity_id);
-  }
-
-  return return_entities;
 }

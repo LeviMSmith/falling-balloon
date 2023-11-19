@@ -1,16 +1,10 @@
 #version 330 core
 
-vec2 triangle_verts[3] = vec2[3](
-  vec2(-0.5f, -0.5f),
-  vec2(0.5f, -0.5f),
-  vec2(0.0f, 0.5f)
-);
+layout (location = 0) in vec3 pos;
 
-vec3 triangle_colors[3] = vec3[3](
-  vec3(1.0f, 0.0f, 0.0f),
-  vec3(0.0f, 1.0f, 0.0f),
-  vec3(0.0f, 0.0f, 1.0f)
-);
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 out vec3 vertex_color;
 

@@ -8,7 +8,13 @@
 #include "ecs/components/kinetic.h"
 #include "ecs/components/pos.h"
 
+#include "utils/threadpool.h"
+
 #include <set>
+#include <vector>
+#include <unordered_map>
+#include <future>
+#include <functional>
 
 Result ECS::create(ECS*& ecs) {
   ecs = new ECS;
@@ -145,9 +151,36 @@ Result ECS::create_entity_player(EntityID& entity_id) {
 }
 
 Result ECS::create_entity_chunk(EntityID& entity_id) {
-  constexpr ComponentBitmask chunk_component_bitmask = ComponentType::POS | ComponentType::CHUNK;
+  constexpr ComponentBitmask chunk_component_bitmask = ComponentType::POS | ComponentType::CHUNK | ComponentType::MESH;
 
   return create_entity(entity_id, chunk_component_bitmask);
+}
+
+std::vector<Mesh> ECS::get_chunk_mesh_component_batch(const std::vector<EntityID>& entity_ids) {
+  std::vector<Mesh> return_meshes;
+
+  Mesh mesh;
+  std::unordered_map<EntityID, std::future<Mesh>> mesh_futures;
+
+  for (EntityID entity_id : entity_ids) {
+    if (mesh_components.get(entity_id, mesh)) {
+      return_meshes[entity_id] = mesh;
+    }
+    else {
+      Components::Chunk chunk = chunk_components.at(entity_id);
+      Components::Pos chunk_pos = pos_components.at(entity_id);
+      auto task = std::bind(&Components::Chunk::generate_mesh, &chunk, chunk_pos);
+      mesh_futures[entity_id] = ThreadPool::enqueue(task);
+    }
+  }
+
+  for (auto& mesh_future : mesh_futures) {
+    mesh = mesh_future.second.get();
+    return_meshes.push_back(mesh);
+    mesh_components.put(mesh_future.first, mesh);
+  }
+
+  return return_meshes;
 }
 
 Result ECS::get_entity_id(EntityID& id) {

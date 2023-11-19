@@ -1,19 +1,11 @@
 #include "core.h"
 #include "update/update.h"
 
-#include "update/ecs/ecs.h"
+#include "ecs/ecs.h"
 
-Result Update::create(Update*& update) {
+Result Update::create(Update*& update, ECS* ecs) {
   update = new Update;
-  update->ecs = nullptr;
-
-  Result ecs_create_res = ECS::create(update->ecs);
-  if (ecs_create_res != Result::SUCCESS) {
-    Update::destroy(update);
-    return ecs_create_res; 
-  }
-
-  Result player_create_res = update->ecs->create_entity_player(update->active_player);
+  Result player_create_res = ecs->create_entity_player(update->active_player);
   if (player_create_res != Result::SUCCESS) {
     return player_create_res;
   }
@@ -22,7 +14,6 @@ Result Update::create(Update*& update) {
 }
 
 void Update::destroy(Update* update) {
-  ECS::destroy(update->ecs);
   if (update != nullptr) {
     delete update;
   }
