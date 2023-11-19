@@ -9,7 +9,6 @@ uniform mat4 projection;
 out vec3 vertex_color;
 
 void main() {
-    gl_Position = vec4(triangle_verts[gl_VertexID], 0.0f, 1.0f);
-    vertex_color = triangle_colors[gl_VertexID];
+    gl_Position = projection * view * model * vec4(pos, 1.0);
+    vertex_color = vec3(0.0, 1.0, 0.0);
 }
-
