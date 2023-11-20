@@ -6,6 +6,7 @@
 
 namespace Components {
   void Camera::update_view() {
-    view = glm::lookAt(eye, center, up);
+    direction = glm::normalize(direction);
+    view = glm::lookAt(eye, eye + direction, up);
   }
 }

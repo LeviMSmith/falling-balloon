@@ -22,26 +22,40 @@ struct RenderEvents {
   
   std::vector<EntityID> invalidated_chunk_meshes;
   glm::mat4 view;
+
+  void clear();
 };
 
-// Window events come from the event handler and generally
-// go to the Render module.
+// Window events come from the event handler and go
+// to both the Render module and the Update module
 enum WindowEvent {
   SHOULD_CLOSE,
   RESIZED,
   MAXIMIZED,
   UNMAXIMIZED,
-};
 
-struct WindowSize {
-  int width;
-  int height;
+  KEY_PRESS,
+  MOUSE_MOVEMENT,
+  MOUSE_CLICK,
 };
 
 struct WindowEvents {
+  struct WindowSize {
+    int width;
+    int height;
+  };
+
+  struct KeyPress {
+    int key;
+    int scancode;
+    int action;
+    int mods;
+  };
+
   std::vector<WindowEvent> events;
 
   WindowSize window_size;
+  std::vector<KeyPress> key_presses;
 };
 
 class EventHandler {

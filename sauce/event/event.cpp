@@ -10,6 +10,13 @@ void window_close_callback(GLFWwindow* window);
 void window_resize_callback(GLFWwindow* window, int width, int height);
 void window_maximized_callback(GLFWwindow* window, int maximized);
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+void RenderEvents::clear() {
+  events.clear();
+  invalidated_chunk_meshes.clear();
+}
+
 Result EventHandler::create(EventHandler*& event_handler, GLFWwindow* glfw_window) {
   event_handler = new EventHandler;
 
@@ -19,6 +26,8 @@ Result EventHandler::create(EventHandler*& event_handler, GLFWwindow* glfw_windo
   glfwSetWindowCloseCallback(glfw_window, (GLFWwindowclosefun)window_close_callback);
   glfwSetFramebufferSizeCallback(glfw_window, (GLFWwindowsizefun)window_resize_callback);
   glfwSetWindowMaximizeCallback(glfw_window, window_maximized_callback);
+
+  glfwSetKeyCallback(glfw_window, key_callback);
 
   return Result::SUCCESS;
 }
@@ -39,6 +48,7 @@ void EventHandler::get_events(WindowEvents* out_events) {
 
 void EventHandler::clear_events() {
   events.events.clear();
+  events.key_presses.clear();
 }
 
 void error_callback(int error_code, const char* description) {
@@ -62,4 +72,8 @@ void window_maximized_callback(GLFWwindow* window, int maximized) {
   else {
     events.events.push_back(WindowEvent::UNMAXIMIZED);
   }
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+  events.key_presses.push_back(WindowEvents::KeyPress{key, scancode, action, mods});
 }

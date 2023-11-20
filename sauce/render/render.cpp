@@ -78,6 +78,8 @@ Result Render::draw(WindowEvents* window_events, RenderEvents* render_events, EC
       case WindowEvent::MAXIMIZED:
       case WindowEvent::UNMAXIMIZED:
         break;
+      default:
+        break;
     }
   }
 

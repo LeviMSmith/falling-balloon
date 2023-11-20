@@ -7,10 +7,14 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include <cstring>
+
 void generate_face_vertices(std::vector<Mesh::Vertex>& vertices, u8 side, u8 x, u8 y, u8 z);
 
 namespace Components {
   Result Chunk::create(Chunk& chunk) {
+    std::memset(&(chunk.cells), Cell::DIRT, CHUNK_COMPONENT_NUM_CELLS);
+
     return Result::SUCCESS;
   }
 

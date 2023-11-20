@@ -78,7 +78,7 @@ Result App::run() {
   b8 running = true;
   while (running) {
     event_handler->get_events(&window_events);
-    update->update(ecs, &render_events);
+    update->update(&window_events, &render_events, ecs);
     Result render_draw_res = render->draw(&window_events, &render_events, ecs);
     if (render_draw_res == Result::RENDER_WINDOW_SHOULD_CLOSE) {
       running = false;
