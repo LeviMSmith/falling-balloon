@@ -3,7 +3,7 @@
 
 #include "utils/result.h"
 
-enum LogLevel {
+enum class LogLevel {
   DEBUG = 0,
   INFO,
   WARN,
@@ -13,12 +13,12 @@ enum LogLevel {
 
 Result init_log(LogLevel level);
 
-void app_log(const char* msg, LogLevel level);
+void app_log(LogLevel level, const char* msg, ...);
 
-#define LOG_DEBUG(...) app_log(__VA_ARGS__, LogLevel::DEBUG)
-#define LOG_INFO(...) app_log(__VA_ARGS__, LogLevel::INFO)
-#define LOG_WARN(...) app_log(__VA_ARGS__, LogLevel::WARN)
-#define LOG_ERROR(...) app_log(__VA_ARGS__, LogLevel::ERROR)
-#define LOG_FATAL(...) app_log(__VA_ARGS__, LogLevel::FATAL)
+#define LOG_DEBUG(...) app_log(LogLevel::DEBUG, __VA_ARGS__)
+#define LOG_INFO(...) app_log(LogLevel::INFO, __VA_ARGS__)
+#define LOG_WARN(...) app_log(LogLevel::WARN, __VA_ARGS__)
+#define LOG_ERROR(...) app_log(LogLevel::ERROR, __VA_ARGS__)
+#define LOG_FATAL(...) app_log(LogLevel::FATAL, __VA_ARGS__)
 
 #endif // LOG_H

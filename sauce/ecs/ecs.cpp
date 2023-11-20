@@ -143,7 +143,7 @@ void ECS::remove_component_from_entity(EntityID entity_id, ComponentType compone
 }
 
 Result ECS::create_entity_player(EntityID& entity_id) {
-  constexpr ComponentBitmask player_component_bitmask = ComponentType::CHUNK | ComponentType::KINETIC | ComponentType::CAMERA;
+  constexpr ComponentBitmask player_component_bitmask = ComponentType::KINETIC | ComponentType::CAMERA | ComponentType::POS;
 
   return create_entity(entity_id, player_component_bitmask);
 }
@@ -151,7 +151,9 @@ Result ECS::create_entity_player(EntityID& entity_id) {
 Result ECS::create_entity_chunk(EntityID& entity_id) {
   constexpr ComponentBitmask chunk_component_bitmask = ComponentType::POS | ComponentType::CHUNK | ComponentType::MESH;
 
-  return create_entity(entity_id, chunk_component_bitmask);
+  Result create_res = create_entity(entity_id, chunk_component_bitmask);
+
+  return create_res;
 }
 
 std::vector<Mesh> ECS::get_chunk_mesh_component_batch(const std::vector<EntityID>& entity_ids) {
@@ -162,7 +164,7 @@ std::vector<Mesh> ECS::get_chunk_mesh_component_batch(const std::vector<EntityID
 
   for (EntityID entity_id : entity_ids) {
     if (mesh_components.get(entity_id, mesh)) {
-      return_meshes[entity_id] = mesh;
+      return_meshes.push_back(mesh);
     }
     else {
       Components::Chunk chunk = chunk_components.at(entity_id);

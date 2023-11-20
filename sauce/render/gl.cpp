@@ -14,9 +14,23 @@
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include <glm/gtc/matrix_transform.hpp>
+
+// void logMatrix(const glm::mat4& mat) {
+//     LOG_INFO("Matrix:\n"
+//              "%f %f %f %f\n"
+//              "%f %f %f %f\n"
+//              "%f %f %f %f\n"
+//              "%f %f %f %f",
+//              mat[0][0], mat[0][1], mat[0][2], mat[0][3],
+//              mat[1][0], mat[1][1], mat[1][2], mat[1][3],
+//              mat[2][0], mat[2][1], mat[2][2], mat[2][3],
+//              mat[3][0], mat[3][1], mat[3][2], mat[3][3]);
+// }
 
 void DrawInfo::clear() {
   new_chunk_meshes.clear();
+  new_view.reset();
 }
 
 Result GlBackend::create(GlBackend*& gl_backend, GLFWwindow* glfw_window) {
@@ -64,7 +78,10 @@ Result GlBackend::draw(DrawInfo& draw_info) {
   }
 
   if (draw_info.new_view.has_value() && ChunkPipeline::shader_program != 0) {
-    glUniformMatrix4fv(ChunkPipeline::view_location, 1, GL_FALSE, glm::value_ptr(draw_info.new_view.value()));
+    glm::mat4 view = draw_info.new_view.value();
+    glUseProgram(ChunkPipeline::shader_program);
+    glUniformMatrix4fv(ChunkPipeline::view_location, 1, GL_FALSE, glm::value_ptr(view));
+    glUseProgram(0);
   }
 
   for (const ChunkPipeline& chunk_pipeline : chunk_pipelines) {
@@ -92,8 +109,10 @@ void GlBackend::handle_resize(int width, int height) {
 
   glViewport(0, 0, width, height);
   f32 aspect_ratio = (f32)width/(f32)height;
-  glm::mat4 projection = glm::perspective(glm::radians(120.0f), aspect_ratio, 1.0f, 100.0f);
+  glm::mat4 projection = glm::perspective(glm::radians(90.0f), aspect_ratio, 0.1f, 100.0f);
+  glUseProgram(ChunkPipeline::shader_program);
   glUniformMatrix4fv(ChunkPipeline::projection_location, 1, GL_FALSE, glm::value_ptr(projection));
+  glUseProgram(0);
 }
 
 Result GlBackend::load_shader_source(std::string& source, std::filesystem::path shader_path) {
@@ -175,7 +194,10 @@ void GlBackend::ChunkPipeline::update(const Mesh& mesh) {
 void GlBackend::ChunkPipeline::draw() const {
   glUseProgram(shader_program);
   glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model));
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glBindVertexArray(vao);
   glDrawArrays(GL_TRIANGLES, 0, num_verticies);
+  glBindVertexArray(0);
   glUseProgram(0);
 }
 

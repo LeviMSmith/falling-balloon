@@ -23,6 +23,7 @@ void Update::destroy(Update* update) {
 }
 
 Result Update::update(WindowEvents* window_events, RenderEvents* render_events, ECS* ecs) {
+  render_events->clear();
   for (WindowEvent event : window_events->events) {
     switch (event) {
       default:
@@ -34,45 +35,37 @@ Result Update::update(WindowEvents* window_events, RenderEvents* render_events, 
     handle_keypresses(window_events->key_presses, render_events, ecs);
   }
 
+
   return Result::SUCCESS;
 }
 
 void Update::handle_keypresses(std::vector<WindowEvents::KeyPress>& key_presses, RenderEvents* render_events, ECS* ecs) {
-  static f32 roation_increment = glm::radians(1.0f);
+  static f32 rotation_increment = glm::radians(5.0f);
   b8 camera_updated = false;
-  glm::vec3 direction;
   Components::Camera& active_camera = ecs->camera_components[active_player];
   for (WindowEvents::KeyPress& key_press : key_presses) {
     if (key_press.action == GLFW_PRESS || key_press.action == GLFW_REPEAT) {
       switch (key_press.key) {
         case GLFW_KEY_A: {
-          direction.x = cos(roation_increment);
-          direction.z = cos(roation_increment);
-          active_camera.direction -= direction;
+          active_camera.yaw -= rotation_increment;
           active_camera.update_view();
           camera_updated = true;
           break;
         }
         case GLFW_KEY_D: {
-          direction.x = cos(roation_increment);
-          direction.z = cos(roation_increment);
-          active_camera.direction += direction;
+          active_camera.yaw += rotation_increment;
           active_camera.update_view();
           camera_updated = true;
           break;
         }
         case GLFW_KEY_W: {
-          direction.y = cos(roation_increment);
-          direction.z = cos(roation_increment);
-          active_camera.direction += direction;
+          active_camera.pitch += rotation_increment;
           active_camera.update_view();
           camera_updated = true;
           break;
         }
         case GLFW_KEY_S: {
-          direction.y = cos(roation_increment);
-          direction.z = cos(roation_increment);
-          active_camera.direction -= direction;
+          active_camera.pitch -= rotation_increment;
           active_camera.update_view();
           camera_updated = true;
           break;
@@ -83,11 +76,8 @@ void Update::handle_keypresses(std::vector<WindowEvents::KeyPress>& key_presses,
     }
   }
 
-  char direction_str[1024];
-  sprintf(direction_str, "%f %f %f", active_camera.direction.x, active_camera.direction.y, active_camera.direction.z);
-  LOG_DEBUG(direction_str);
-  
   if (camera_updated) {
     render_events->events.push_back(RenderEvent::CAMERA_UPDATED);
+    render_events->view = active_camera.view;
   }
 }

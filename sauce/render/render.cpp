@@ -83,12 +83,16 @@ Result Render::draw(WindowEvents* window_events, RenderEvents* render_events, EC
     }
   }
 
+  draw_info.clear();
+
   bool update_chunk_pipeline = false;
   for (RenderEvent event : render_events->events) {
     switch (event) {
       case RenderEvent::CAMERA_UPDATED: {
         std::vector<EntityID> list_chunks_in_view = get_loaded_chunks_in_view(ecs);
         chunks_in_view = std::unordered_set<EntityID>(list_chunks_in_view.begin(), list_chunks_in_view.end());
+        update_chunk_pipeline = true;
+        draw_info.new_view = render_events->view;
         break;
       }
       case RenderEvent::CHUNK_MESH_INVALIDATED: {
@@ -102,8 +106,6 @@ Result Render::draw(WindowEvents* window_events, RenderEvents* render_events, EC
       }
     }
   }
-
-  draw_info.clear();
 
   if (update_chunk_pipeline) {
     std::vector<EntityID> chunks_in_view_list(chunks_in_view.begin(), chunks_in_view.end());
