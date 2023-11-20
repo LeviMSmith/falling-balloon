@@ -1,5 +1,5 @@
 #include "core.h"
-#include "update/components/graphics_pipline.h"
+#include "ecs/components/graphics_pipline.h"
 
 namespace Components {
   Result GraphicsPipeline::create(GraphicsPipeline& graphics_pipline) {

@@ -1,15 +1,37 @@
 #include "core.h"
 #include "render/gl.h"
 
-#include "update/ecs/ecs.h"
+#include "ecs/ecs.h"
 #include "utils/resources.h"
 
 #include <filesystem>
 #include <string>
 #include <fstream>
+#include <vector>
+#include <unordered_map>
 
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include <glm/gtc/matrix_transform.hpp>
+
+// void logMatrix(const glm::mat4& mat) {
+//     LOG_INFO("Matrix:\n"
+//              "%f %f %f %f\n"
+//              "%f %f %f %f\n"
+//              "%f %f %f %f\n"
+//              "%f %f %f %f",
+//              mat[0][0], mat[0][1], mat[0][2], mat[0][3],
+//              mat[1][0], mat[1][1], mat[1][2], mat[1][3],
+//              mat[2][0], mat[2][1], mat[2][2], mat[2][3],
+//              mat[3][0], mat[3][1], mat[3][2], mat[3][3]);
+// }
+
+void DrawInfo::clear() {
+  new_chunk_meshes.clear();
+  new_view.reset();
+}
 
 Result GlBackend::create(GlBackend*& gl_backend, GLFWwindow* glfw_window) {
   gl_backend = new GlBackend;
@@ -28,7 +50,7 @@ Result GlBackend::create(GlBackend*& gl_backend, GLFWwindow* glfw_window) {
 
   gl_backend->handle_resize();
 
-  Result chunk_pipeline_prepare_res = gl_backend->prepare_chunk_pipeline();
+  Result chunk_pipeline_prepare_res = ChunkPipeline::create_shader_program();
   if (chunk_pipeline_prepare_res != Result::SUCCESS) {
     GlBackend::destroy(gl_backend);
     return chunk_pipeline_prepare_res;
@@ -39,7 +61,6 @@ Result GlBackend::create(GlBackend*& gl_backend, GLFWwindow* glfw_window) {
 
 void GlBackend::destroy(GlBackend*& gl_backend) {
   if (gl_backend != nullptr) {
-    gl_backend->cleanup_chunk_pipeline();
     delete gl_backend;
     gl_backend = nullptr;
   }
@@ -48,7 +69,24 @@ void GlBackend::destroy(GlBackend*& gl_backend) {
 Result GlBackend::draw(DrawInfo& draw_info) {
   glClear(GL_COLOR_BUFFER_BIT);
 
-  draw_chunk_components(draw_info.chunk_meshes);
+  size_t num_new_chunks = draw_info.new_chunk_meshes.size();
+  if (num_new_chunks > 0) {
+    chunk_pipelines.resize(num_new_chunks);
+    for (size_t i = 0; i < num_new_chunks; i++) {
+      chunk_pipelines[i].update(draw_info.new_chunk_meshes[i]);
+    }
+  }
+
+  if (draw_info.new_view.has_value() && ChunkPipeline::shader_program != 0) {
+    glm::mat4 view = draw_info.new_view.value();
+    glUseProgram(ChunkPipeline::shader_program);
+    glUniformMatrix4fv(ChunkPipeline::view_location, 1, GL_FALSE, glm::value_ptr(view));
+    glUseProgram(0);
+  }
+
+  for (const ChunkPipeline& chunk_pipeline : chunk_pipelines) {
+    chunk_pipeline.draw();
+  }
 
   return Result::SUCCESS;
 }
@@ -70,6 +108,11 @@ void GlBackend::handle_resize(int width, int height) {
   }
 
   glViewport(0, 0, width, height);
+  f32 aspect_ratio = (f32)width/(f32)height;
+  glm::mat4 projection = glm::perspective(glm::radians(90.0f), aspect_ratio, 0.1f, 100.0f);
+  glUseProgram(ChunkPipeline::shader_program);
+  glUniformMatrix4fv(ChunkPipeline::projection_location, 1, GL_FALSE, glm::value_ptr(projection));
+  glUseProgram(0);
 }
 
 Result GlBackend::load_shader_source(std::string& source, std::filesystem::path shader_path) {
@@ -109,7 +152,56 @@ Result GlBackend::compile_shader(GLuint& shader, const char* source, GLenum type
   return Result::SUCCESS;
 }
 
-Result GlBackend::prepare_chunk_pipeline() {
+//////////////////////////////////////
+/// ChunkPipeline ////////////////////
+//////////////////////////////////////
+
+GLuint GlBackend::ChunkPipeline::shader_program = 0;
+GLuint GlBackend::ChunkPipeline::model_location = 0;
+GLuint GlBackend::ChunkPipeline::view_location = 0;
+GLuint GlBackend::ChunkPipeline::projection_location = 0;
+
+GlBackend::ChunkPipeline::ChunkPipeline() {
+  if (ChunkPipeline::shader_program == 0) {
+    ChunkPipeline::create_shader_program();
+  }
+
+  // Now the objects the pipeline uses
+  glGenBuffers(1, &vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+  glGenVertexArrays(1, &vao);
+  glBindVertexArray(vao);
+
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Mesh::Vertex), (void*)offsetof(Mesh::Vertex, position));
+  glEnableVertexAttribArray(0);
+
+  glBindVertexArray(0);
+}
+
+GlBackend::ChunkPipeline::~ChunkPipeline() {
+  glDeleteVertexArrays(1, &vao);
+  glDeleteBuffers(1, &vbo);
+}
+
+void GlBackend::ChunkPipeline::update(const Mesh& mesh) {
+  num_verticies = mesh.vertices.size();
+  model = mesh.model;
+  glBindBuffer(GL_ARRAY_BUFFER, vbo); 
+  glBufferData(GL_ARRAY_BUFFER, num_verticies * sizeof(Mesh::Vertex), mesh.vertices.data(), GL_STATIC_DRAW);
+}
+
+void GlBackend::ChunkPipeline::draw() const {
+  glUseProgram(shader_program);
+  glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model));
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glBindVertexArray(vao);
+  glDrawArrays(GL_TRIANGLES, 0, num_verticies);
+  glBindVertexArray(0);
+  glUseProgram(0);
+}
+
+Result GlBackend::ChunkPipeline::create_shader_program() {
   std::filesystem::path resource_dir, vertex_shader_path, fragment_shader_path;
   Resources::get_resource_path(resource_dir);
   vertex_shader_path = resource_dir / Resources::SHADER_PATH / "chunk.vert.glsl";
@@ -128,16 +220,16 @@ Result GlBackend::prepare_chunk_pipeline() {
     return Result::FAILURE_GLSL_SHADER_COMPILE;
   }
 
-  chunk_pipeline.shader_program = glCreateProgram();
-  glAttachShader(chunk_pipeline.shader_program, vertex_shader);
-  glAttachShader(chunk_pipeline.shader_program, fragment_shader);
-  glLinkProgram(chunk_pipeline.shader_program);
+  shader_program = glCreateProgram();
+  glAttachShader(shader_program, vertex_shader);
+  glAttachShader(shader_program, fragment_shader);
+  glLinkProgram(shader_program);
 
   GLint success;
   GLchar info_log[1024];
-  glGetProgramiv(chunk_pipeline.shader_program, GL_LINK_STATUS, &success);
+  glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
   if (!success) {
-    glGetProgramInfoLog(chunk_pipeline.shader_program, 1024, NULL, info_log);
+    glGetProgramInfoLog(shader_program, 1024, NULL, info_log);
     LOG_ERROR("Failed to link chunk pipeline program");
     LOG_ERROR(info_log);
   }
@@ -145,46 +237,9 @@ Result GlBackend::prepare_chunk_pipeline() {
   glDeleteShader(vertex_shader);
   glDeleteShader(fragment_shader);
 
-  // Now the objects the pipeline uses
-  GLuint vbo;
-  glGenBuffers(1, &vbo);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-  GLuint vao;
-  glGenVertexArrays(1, &vao);
-  glBindVertexArray(vao);
-
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Mesh::Vertex), (void*)offsetof(Mesh::Vertex, position));
-  glEnableVertexAttribArray(0);
-
-  glBindVertexArray(0);
-
-  chunk_pipeline.buffers.push_back(GLSLbuffer {vbo, vao, GLSLbufferType::VERTEX});
+  model_location = glGetUniformLocation(shader_program, "model");
+  view_location  = glGetUniformLocation(shader_program, "view");
+  projection_location  = glGetUniformLocation(shader_program, "projection");
 
   return Result::SUCCESS;
-}
-
-void GlBackend::cleanup_chunk_pipeline() {
-  GLuint vbo = chunk_pipeline.buffers[0].buffer;
-  GLuint vao = chunk_pipeline.buffers[0].attribute_object;
-
-  glDeleteVertexArrays(1, &vao);
-  glDeleteBuffers(1, &vbo);
-}
-
-void GlBackend::draw_chunk_components(const std::vector<Mesh>& chunk_meshes) {
-  glUseProgram(chunk_pipeline.shader_program);
-  for (const Mesh& mesh : chunk_meshes) {
-
-    GLuint vbo = chunk_pipeline.buffers[0].buffer;
-    GLuint vao = chunk_pipeline.buffers[0].attribute_object;
-    std::vector<Mesh::Vertex> vertices = mesh.verticies;
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo); 
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Mesh::Vertex), vertices.data(), GL_STATIC_DRAW);
-
-    glBindVertexArray(vao);
-    glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-  }
-  glUseProgram(0);
 }

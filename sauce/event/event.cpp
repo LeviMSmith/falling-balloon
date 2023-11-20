@@ -3,12 +3,19 @@
 
 #include "GLFW/glfw3.h"
 
-Events events;
+WindowEvents events;
 
 void error_callback(int error_code, const char* description);
 void window_close_callback(GLFWwindow* window);
 void window_resize_callback(GLFWwindow* window, int width, int height);
 void window_maximized_callback(GLFWwindow* window, int maximized);
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+void RenderEvents::clear() {
+  events.clear();
+  invalidated_chunk_meshes.clear();
+}
 
 Result EventHandler::create(EventHandler*& event_handler, GLFWwindow* glfw_window) {
   event_handler = new EventHandler;
@@ -20,6 +27,8 @@ Result EventHandler::create(EventHandler*& event_handler, GLFWwindow* glfw_windo
   glfwSetFramebufferSizeCallback(glfw_window, (GLFWwindowsizefun)window_resize_callback);
   glfwSetWindowMaximizeCallback(glfw_window, window_maximized_callback);
 
+  glfwSetKeyCallback(glfw_window, key_callback);
+
   return Result::SUCCESS;
 }
 
@@ -30,7 +39,7 @@ void EventHandler::destroy(EventHandler*& event_handler) {
   }
 }
 
-void EventHandler::get_events(Events* out_events) {
+void EventHandler::get_events(WindowEvents* out_events) {
   clear_events();
   glfwPollEvents();
 
@@ -38,7 +47,8 @@ void EventHandler::get_events(Events* out_events) {
 }
 
 void EventHandler::clear_events() {
-  events.window_events.clear();
+  events.events.clear();
+  events.key_presses.clear();
 }
 
 void error_callback(int error_code, const char* description) {
@@ -46,20 +56,24 @@ void error_callback(int error_code, const char* description) {
 }
 
 void window_close_callback(GLFWwindow* window) {
-  events.window_events.push_back(Event::WINDOW_SHOULD_CLOSE);
+  events.events.push_back(WindowEvent::SHOULD_CLOSE);
 }
 
 void window_resize_callback(GLFWwindow* window, int width, int height) {
-  events.window_events.push_back(Event::WINDOW_RESIZED);
+  events.events.push_back(WindowEvent::RESIZED);
   events.window_size.width = width;
   events.window_size.height = height;
 }
 
 void window_maximized_callback(GLFWwindow* window, int maximized) {
   if (maximized) {
-    events.window_events.push_back(Event::WINDOW_MAXIMIZED);
+    events.events.push_back(WindowEvent::MAXIMIZED);
   }
   else {
-    events.window_events.push_back(Event::WINDOW_UNMAXIMIZED);
+    events.events.push_back(WindowEvent::UNMAXIMIZED);
   }
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+  events.key_presses.push_back(WindowEvents::KeyPress{key, scancode, action, mods});
 }

@@ -3,33 +3,23 @@
 
 #include "core.h"
 
-#include "update/ecs/ecs.h"
+#include "ecs/ecs.h"
 #include "render/mesh.h"
 
 #include <filesystem>
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <optional>
 
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
 struct DrawInfo {
-  std::vector<Mesh> chunk_meshes;
-};
+  std::vector<Mesh> new_chunk_meshes;
+  std::optional<glm::mat4> new_view;
 
-enum GLSLbufferType {
-  VERTEX,
-};
-
-struct GLSLbuffer {
-  GLuint buffer;
-  GLuint attribute_object;
-  GLSLbufferType type;
-};
-
-struct Pipeline {
-  GLuint shader_program;
-  std::vector<GLSLbuffer> buffers;
+  void clear();
 };
 
 class GlBackend {
@@ -47,10 +37,27 @@ private:
   static Result load_shader_source(std::string& source, std::filesystem::path shader_path);
   static Result compile_shader(GLuint& shader, const char* source, GLenum type);
 
-  Pipeline chunk_pipeline;
-  Result prepare_chunk_pipeline();
-  void cleanup_chunk_pipeline();
-  void draw_chunk_components(const std::vector<Mesh>& chunk_meshes);
+  class ChunkPipeline {
+  public:
+    ChunkPipeline();
+    ~ChunkPipeline();
+
+    static GLuint shader_program;
+    static GLuint model_location;
+    static GLuint view_location;
+    static GLuint projection_location;
+    GLuint vbo;
+    GLuint vao;
+    glm::mat4 model;
+    size_t num_verticies;
+
+    void update(const Mesh& mesh);
+    void draw() const;
+
+    static Result create_shader_program();
+  };
+
+  std::vector<ChunkPipeline> chunk_pipelines;
 };
 
 #endif

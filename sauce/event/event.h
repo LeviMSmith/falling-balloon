@@ -3,26 +3,59 @@
 
 #include "core.h"
 
-#include <vector>
+#include "ecs/entity.h"
 
 #include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
 
-enum Event {
-  WINDOW_SHOULD_CLOSE,
-  WINDOW_RESIZED,
-  WINDOW_MAXIMIZED,
-  WINDOW_UNMAXIMIZED,
+#include <vector>
+
+// Render events are specifically from Update module to
+// Render module.
+enum RenderEvent {
+  CHUNK_MESH_INVALIDATED,
+  CAMERA_UPDATED,
 };
 
-struct WindowSize {
-  int width;
-  int height;
+struct RenderEvents {
+  std::vector<RenderEvent> events;
+  
+  std::vector<EntityID> invalidated_chunk_meshes;
+  glm::mat4 view;
+
+  void clear();
 };
 
-struct Events {
-  std::vector<Event> window_events;
+// Window events come from the event handler and go
+// to both the Render module and the Update module
+enum WindowEvent {
+  SHOULD_CLOSE,
+  RESIZED,
+  MAXIMIZED,
+  UNMAXIMIZED,
+
+  KEY_PRESS,
+  MOUSE_MOVEMENT,
+  MOUSE_CLICK,
+};
+
+struct WindowEvents {
+  struct WindowSize {
+    int width;
+    int height;
+  };
+
+  struct KeyPress {
+    int key;
+    int scancode;
+    int action;
+    int mods;
+  };
+
+  std::vector<WindowEvent> events;
 
   WindowSize window_size;
+  std::vector<KeyPress> key_presses;
 };
 
 class EventHandler {
@@ -30,7 +63,7 @@ public:
   static Result create(EventHandler*& event_handler, GLFWwindow* glfw_window);
   static void destroy(EventHandler*& event_handler);
 
-  static void get_events(Events* events);
+  static void get_events(WindowEvents* events);
 private:
   GLFWwindow* glfw_window;
 

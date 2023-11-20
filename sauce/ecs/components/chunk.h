@@ -4,7 +4,7 @@
 #include "core.h"
 
 #include "render/mesh.h"
-#include "update/ecs/entity.h"
+#include "ecs/entity.h"
 
 #include <set>
 
@@ -25,7 +25,7 @@ namespace Components {
     static Result create(Chunk& chunk);
     static void destroy(Chunk& chunk);
 
-    Mesh generate_mesh();
+    Mesh generate_mesh(glm::vec3 model_pos);
   };
 } // namespace Components
 

@@ -30,6 +30,7 @@ constexpr size_t MAX_CAMERA_COMPONENTS = 24; // x24 bytes 576B
 // like the other components and probably won't ever reach this max.
 constexpr size_t MAX_GRAPHICS_PIPELINE_COMPONENTS = 100;
 constexpr size_t MAX_CHUNK_COMPONENTS = MAX_CHUNKS; // x69640 1393MB
+constexpr size_t MAX_MESH_COMPONENTS = MAX_CHUNKS;
 
 typedef u32 EntityID;
 typedef u32 ComponentBitmask;
@@ -39,7 +40,8 @@ enum ComponentType: u32 {
     KINETIC = 1 << 1,
     CAMERA = 1 << 2,
     GRAPHICS_PIPELINE = 1 << 3,
-    CHUNK = 1 << 4
+    CHUNK = 1 << 4,
+    MESH = 1 << 5
 };
 
 constexpr u8 NUM_COMPONENT_TYPES = 5;

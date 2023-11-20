@@ -1,14 +1,20 @@
 #include "core.h"
 
-#include "update/ecs/ecs.h"
+#include "ecs/ecs.h"
 
-#include "update/components/camera.h"
-#include "update/components/chunk.h"
-#include "update/components/graphics_pipline.h"
-#include "update/components/kinetic.h"
-#include "update/components/pos.h"
+#include "ecs/components/camera.h"
+#include "ecs/components/chunk.h"
+#include "ecs/components/graphics_pipline.h"
+#include "ecs/components/kinetic.h"
+#include "ecs/components/pos.h"
+
+#include "utils/threadpool.h"
 
 #include <set>
+#include <vector>
+#include <unordered_map>
+#include <future>
+#include <functional>
 
 Result ECS::create(ECS*& ecs) {
   ecs = new ECS;
@@ -68,8 +74,8 @@ Result ECS::add_component_to_entity(EntityID entity_id, ComponentType component_
   Result component_create_res;
   switch (component_type) {
     case ComponentType::POS: {
-      Components::Pos& pos = pos_components[entity_id];
-      component_create_res = Components::Pos::create(pos);
+      pos_components[entity_id] = Components::Pos();
+      component_create_res = Result::SUCCESS;
       break;
     }
     case ComponentType::KINETIC: {
@@ -78,8 +84,8 @@ Result ECS::add_component_to_entity(EntityID entity_id, ComponentType component_
       break;
     }
     case ComponentType::CAMERA: {
-      Components::Camera& camera = camera_components[entity_id];
-      component_create_res = Components::Camera::create(camera);
+      camera_components[entity_id] = Components::Camera();
+      component_create_res = Result::SUCCESS;
       break;
     }
     case ComponentType::GRAPHICS_PIPELINE: {
@@ -108,8 +114,6 @@ Result ECS::add_component_to_entity(EntityID entity_id, ComponentType component_
 void ECS::remove_component_from_entity(EntityID entity_id, ComponentType component_type) {
   switch (component_type) {
     case ComponentType::POS: {
-      Components::Pos& pos = pos_components[entity_id];
-      Components::Pos::destroy(pos);
       break;
     }
     case ComponentType::KINETIC: {
@@ -118,8 +122,6 @@ void ECS::remove_component_from_entity(EntityID entity_id, ComponentType compone
       break;
     }
     case ComponentType::CAMERA: {
-      Components::Camera& camera = camera_components[entity_id];
-      Components::Camera::destroy(camera);
       break;
     }
     case ComponentType::GRAPHICS_PIPELINE: {
@@ -141,15 +143,44 @@ void ECS::remove_component_from_entity(EntityID entity_id, ComponentType compone
 }
 
 Result ECS::create_entity_player(EntityID& entity_id) {
-  constexpr ComponentBitmask player_component_bitmask = ComponentType::CHUNK | ComponentType::KINETIC | ComponentType::CAMERA;
+  constexpr ComponentBitmask player_component_bitmask = ComponentType::KINETIC | ComponentType::CAMERA | ComponentType::POS;
 
   return create_entity(entity_id, player_component_bitmask);
 }
 
 Result ECS::create_entity_chunk(EntityID& entity_id) {
-  constexpr ComponentBitmask chunk_component_bitmask = ComponentType::POS | ComponentType::CHUNK;
+  constexpr ComponentBitmask chunk_component_bitmask = ComponentType::POS | ComponentType::CHUNK | ComponentType::MESH;
 
-  return create_entity(entity_id, chunk_component_bitmask);
+  Result create_res = create_entity(entity_id, chunk_component_bitmask);
+
+  return create_res;
+}
+
+std::vector<Mesh> ECS::get_chunk_mesh_component_batch(const std::vector<EntityID>& entity_ids) {
+  std::vector<Mesh> return_meshes;
+
+  Mesh mesh;
+  std::unordered_map<EntityID, std::future<Mesh>> mesh_futures;
+
+  for (EntityID entity_id : entity_ids) {
+    if (mesh_components.get(entity_id, mesh)) {
+      return_meshes.push_back(mesh);
+    }
+    else {
+      Components::Chunk chunk = chunk_components.at(entity_id);
+      Components::Pos chunk_pos = pos_components.at(entity_id);
+      auto task = [&chunk, chunk_pos] { return chunk.generate_mesh(chunk_pos.pos); };
+      mesh_futures[entity_id] = ThreadPool::enqueue(task);
+    }
+  }
+
+  for (auto& mesh_future : mesh_futures) {
+    mesh = mesh_future.second.get();
+    return_meshes.push_back(mesh);
+    mesh_components.put(mesh_future.first, mesh);
+  }
+
+  return return_meshes;
 }
 
 Result ECS::get_entity_id(EntityID& id) {

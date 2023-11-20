@@ -1,19 +1,26 @@
 #include "core.h"
-#include "update/components/chunk.h"
+#include "ecs/components/chunk.h"
 
 #include "render/mesh.h"
 #include "utils/math/dim.h"
+
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
+#include <cstring>
 
 void generate_face_vertices(std::vector<Mesh::Vertex>& vertices, u8 side, u8 x, u8 y, u8 z);
 
 namespace Components {
   Result Chunk::create(Chunk& chunk) {
+    std::memset(&(chunk.cells), Cell::DIRT, CHUNK_COMPONENT_NUM_CELLS);
+
     return Result::SUCCESS;
   }
 
   void Chunk::destroy(Chunk& chunk) {}
 
-  Mesh Chunk::generate_mesh() {
+  Mesh Chunk::generate_mesh(glm::vec3 model_pos) {
     Mesh return_mesh;
 
     s16 neighbor_x = 0, neighbor_y = 0, neighbor_z = 0;
@@ -56,17 +63,20 @@ namespace Components {
               if (!z_out_of_chunk && !y_out_of_chunk && !x_out_of_chunk) {
                 Cell neighbor_cell = cells[Dim::threed_to_oned<size_t, u8>(neighbor_x, neighbor_y, neighbor_z, CHUNK_COMPONENT_CELL_WIDTH, CHUNK_COMPONENT_CELL_WIDTH)];
                 if (neighbor_cell == Cell::NONE) {
-                  generate_face_vertices(return_mesh.verticies, side, x, y, z);
+                  generate_face_vertices(return_mesh.vertices, side, x, y, z);
                 }
               }
               else {
-                generate_face_vertices(return_mesh.verticies, side, x, y, z);
+                generate_face_vertices(return_mesh.vertices, side, x, y, z);
               }
             }
           }
         }
       }
     }
+
+    return_mesh.model = glm::mat4(1.0f);
+    return_mesh.model = glm::translate(return_mesh.model, model_pos);
     
     return return_mesh;
   }

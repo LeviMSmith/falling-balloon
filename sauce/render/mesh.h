@@ -10,12 +10,11 @@
 struct Mesh {
   struct Vertex {
     glm::vec3 position;
-    glm::vec3 normal;
     glm::vec2 texCoord;
   };
 
-  std::vector<Vertex> verticies;
-  std::vector<u32> indicies;
+  std::vector<Vertex> vertices;
+  glm::mat4 model;
 };
 
 #endif // MESH_H_

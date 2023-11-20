@@ -1,5 +1,5 @@
 #include "core.h"
-#include "update/components/kinetic.h"
+#include "ecs/components/kinetic.h"
 
 namespace Components {
   Result Kinetic::create(Kinetic& kinetic) {
