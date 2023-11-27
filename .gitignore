@@ -1,5 +1,5 @@
-build/
-bin/
-.cache/
+/build/
+/bin/
+/.cache/
 
-compile_commands.json
+/compile_commands.json
