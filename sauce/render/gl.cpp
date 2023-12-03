@@ -53,6 +53,8 @@ Result GlBackend::create(GlBackend*& gl_backend, GLFWwindow* glfw_window) {
   // glEnable(GL_CULL_FACE);
   // glCullFace(GL_BACK); // or GL_FRONT if you need to cull front faces
   // glFrontFace(GL_CCW); // or GL_CW for clockwise winding
+  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  // glDisable(GL_CULL_FACE);
 
   Result chunk_pipeline_prepare_res = ChunkPipeline::create_shader_program();
   if (chunk_pipeline_prepare_res != Result::SUCCESS) {

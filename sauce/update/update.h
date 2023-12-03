@@ -15,7 +15,8 @@ public:
 
   Result update(WindowEvents* window_events, RenderEvents* render_events, ECS* ecs);
 private:
-  void handle_keypresses(std::vector<WindowEvents::KeyPress>& key_presses, RenderEvents* render_events, ECS* ecs);
+  Result handle_keypresses(std::vector<WindowEvents::KeyPress>& key_presses, RenderEvents* render_events, ECS* ecs);
+  void handle_mouse_movement(f32 xoffset, f32 yoffset, RenderEvents* render_events, ECS* ecs);
 };
 
 #endif // UPDATE_H_

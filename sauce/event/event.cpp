@@ -11,6 +11,7 @@ void window_resize_callback(GLFWwindow* window, int width, int height);
 void window_maximized_callback(GLFWwindow* window, int maximized);
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
 void RenderEvents::clear() {
   events.clear();
@@ -28,6 +29,7 @@ Result EventHandler::create(EventHandler*& event_handler, GLFWwindow* glfw_windo
   glfwSetWindowMaximizeCallback(glfw_window, window_maximized_callback);
 
   glfwSetKeyCallback(glfw_window, key_callback);
+  glfwSetCursorPosCallback(glfw_window, cursor_position_callback);
 
   return Result::SUCCESS;
 }
@@ -76,4 +78,12 @@ void window_maximized_callback(GLFWwindow* window, int maximized) {
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
   events.key_presses.push_back(WindowEvents::KeyPress{key, scancode, action, mods});
+}
+
+
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+  events.events.push_back(WindowEvent::MOUSE_MOVEMENT);
+  
+  events.mouse_x = xpos;
+  events.mouse_y = ypos;
 }

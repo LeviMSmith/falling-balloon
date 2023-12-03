@@ -56,6 +56,7 @@ struct WindowEvents {
 
   WindowSize window_size;
   std::vector<KeyPress> key_presses;
+  double mouse_x, mouse_y;
 };
 
 class EventHandler {
