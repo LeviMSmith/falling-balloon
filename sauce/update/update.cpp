@@ -45,19 +45,18 @@ Result Update::update(WindowEvents* window_events, RenderEvents* render_events, 
     }
   }
 
-
   return Result::SUCCESS;
 }
 
 
 Result Update::handle_keypresses(std::vector<WindowEvents::KeyPress>& key_presses, RenderEvents* render_events, ECS* ecs) {
-  static f32 move_speed = 0.5f; // Adjust as needed for movement speed
+  static f32 move_speed = 1.0f; // Adjust as needed for movement speed
   b8 camera_updated = false;
   Components::Camera& active_camera = ecs->camera_components[active_player];
 
-  glm::vec3 forward = {0.0f, 0.0f, 1.0f};
-  glm::vec3 right = {0.0f, 1.0f, 0.0f};
-  glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f); // Up vector, assuming Y is up
+  glm::vec3 forward = active_camera.forward;
+  glm::vec3 right = active_camera.right;
+  glm::vec3 up = {0.0f, 1.0f, 0.0f};
 
   for (WindowEvents::KeyPress& key_press : key_presses) {
     if (key_press.action == GLFW_PRESS || key_press.action == GLFW_REPEAT) {
@@ -78,6 +77,15 @@ Result Update::handle_keypresses(std::vector<WindowEvents::KeyPress>& key_presse
           active_camera.eye += right * move_speed;
           camera_updated = true;
           break;
+        case GLFW_KEY_SPACE:
+          active_camera.eye += up * move_speed;
+          camera_updated = true;
+          break;
+        case GLFW_KEY_LEFT_SHIFT:
+          active_camera.eye -= up * move_speed;
+          camera_updated = true;
+          break;
+        case GLFW_KEY_ESCAPE:
         case GLFW_KEY_Q:
           return Result::RENDER_WINDOW_SHOULD_CLOSE;
       }
@@ -101,7 +109,7 @@ void Update::handle_mouse_movement(f32 xoffset, f32 yoffset, RenderEvents* rende
   Components::Camera& active_camera = ecs->camera_components[active_player];
 
   active_camera.yaw += xoffset;
-  active_camera.pitch += yoffset;
+  active_camera.pitch -= yoffset;
 
   // Constrain the pitch so the screen doesn't flip
   if (active_camera.pitch > 89.0f)

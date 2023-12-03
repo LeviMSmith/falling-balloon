@@ -16,6 +16,7 @@ struct Camera {
 
   glm::vec3 eye, up;
   f32 yaw, pitch;
+  glm::vec3 forward, right;
   glm::mat4 view;
 
   void update_view();
