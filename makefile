@@ -10,7 +10,7 @@ CMAKE_BUILD_TYPE := $(shell echo $(BUILD_TYPE) | awk '{print toupper(substr($$0,
 
 # Directories
 SRCDIR := sauce
-BUILDDIR := $(CURDIR)/build
+BUILDDIR := $(CURDIR)/build/$(CMAKE_BUILD_TYPE)
 APPBUILDDIR := $(BUILDDIR)/app
 TARGETDIR := bin/$(BUILD_TYPE)
 RESOURCEDIR := resources

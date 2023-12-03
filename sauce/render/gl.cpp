@@ -241,5 +241,13 @@ Result GlBackend::ChunkPipeline::create_shader_program() {
   view_location  = glGetUniformLocation(shader_program, "view");
   projection_location  = glGetUniformLocation(shader_program, "projection");
 
+  glGenTextures(1, &texture_atlas);
+  glBindTexture(GL_TEXTURE_2D, texture_atlas);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
   return Result::SUCCESS;
 }
