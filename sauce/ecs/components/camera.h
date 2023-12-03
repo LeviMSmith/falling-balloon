@@ -10,7 +10,7 @@ struct Camera {
   Camera()
       : eye(glm::vec3(-1.0f, -1.0f, -1.0f)),
         up(glm::vec3(0.0f, 1.0f, 0.0f)), yaw(0),
-        pitch(0) {
+        pitch(0), forward(0), right(0) {
           update_view();
         }
 
