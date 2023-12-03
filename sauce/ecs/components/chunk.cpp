@@ -94,10 +94,13 @@ void generate_face_vertices(std::vector<Mesh::Vertex>& vertices, u8 side, u8 x, 
         {{1, 0, 0}, {1, 0, 1}, {1, 1, 1}, {1, 1, 0}}  // Right
     };
 
-    static const glm::vec2 tex_coord = {3, 15};
+    static const glm::vec2 tex_coord = {1, 0};
     static const f32 atlas_size = 16.0f;
     static const glm::vec2 face_uv[4] = {
-      {tex_coord / atlas_size}, { (tex_coord.x + 1) / atlas_size, tex_coord.y / atlas_size}, { (tex_coord.x + 1) / atlas_size, (tex_coord.y + 1) / atlas_size}, {tex_coord.x / atlas_size, tex_coord.y / atlas_size}
+        {tex_coord.x / atlas_size, tex_coord.y / atlas_size},
+        {(tex_coord.x + 1) / atlas_size, tex_coord.y / atlas_size},
+        {(tex_coord.x + 1) / atlas_size, (tex_coord.y + 1) / atlas_size},
+        {tex_coord.x / atlas_size, (tex_coord.y + 1) / atlas_size}
     };
 
     // Calculate the base position of the cell

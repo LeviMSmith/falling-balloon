@@ -2,9 +2,9 @@
 
 uniform sampler2D tex_atlas;
 
-in vec2 uv;
+in vec2 tex_uv;
 out vec4 FragColor;
 
 void main() {
-    FragColor = texture(tex_atlas, uv);
+    FragColor = texture(tex_atlas, tex_uv);
 }

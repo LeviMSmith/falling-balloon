@@ -206,6 +206,7 @@ void GlBackend::ChunkPipeline::draw() const {
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texture_atlas);
+  glUniform1i(texture_atlas_location, 0);
 
   glDrawArrays(GL_TRIANGLES, 0, num_verticies);
 
@@ -261,6 +262,7 @@ Result GlBackend::ChunkPipeline::create_shader_program() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
   std::filesystem::path texture_atlas_path = resource_dir / "textures" / "blocks.png";
 
@@ -272,7 +274,17 @@ Result GlBackend::ChunkPipeline::create_shader_program() {
     return load_res;
   }
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, atlas_data.data());
+  GLenum format;
+  if (nrChannels == 3) {
+    format = GL_RGB;
+  } else if (nrChannels == 4) {
+    format = GL_RGBA;
+  } else {
+    LOG_WARN("Unknown texture format");
+    format = GL_RGB;
+  }
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, atlas_data.data());
   glGenerateMipmap(GL_TEXTURE_2D);
 
   return Result::SUCCESS;
