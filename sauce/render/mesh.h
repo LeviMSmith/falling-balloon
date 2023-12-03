@@ -10,7 +10,7 @@
 struct Mesh {
   struct Vertex {
     glm::vec3 position;
-    glm::vec2 texCoord;
+    glm::vec2 tex_cord;
   };
 
   std::vector<Vertex> vertices;

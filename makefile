@@ -33,12 +33,15 @@ GLEW_INCLUDE := $(GLEW_DIR)/include
 GLM_DIR := vendor/glm
 GLM_INCLUDE := $(GLM_DIR)
 
+# STB
+STB_DIR := vendor/stb
+
 # Compiler options (default to clang)
 CC := /usr/bin/clang
 CXX := /usr/bin/clang++
 
 # Compiler and linker flags
-CFLAGS := -I$(SRCDIR) -I$(GLFW_INCLUDE) -I$(GLEW_INCLUDE) -I$(GLM_INCLUDE) -MMD -Wall -Wunused-result -std=c++20
+CFLAGS := -I$(SRCDIR) -I$(STB_DIR) -I$(GLFW_INCLUDE) -I$(GLEW_INCLUDE) -I$(GLM_INCLUDE) -MMD -Wall -Wunused-result -std=c++20
 DFLAGS := -DPLATFORM_LINUX -DGLEW_STATIC -DGLFW_INCLUDE_NONE -DRESOURCE_DIR=\"$(RESOURCEDIR)\"
 LDFLAGS := -lX11 -lGL
 ifeq ($(BUILD_TYPE), release)
