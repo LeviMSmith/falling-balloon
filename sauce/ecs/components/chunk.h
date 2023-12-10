@@ -11,6 +11,12 @@
 enum Cell: u8 {
   NONE,
   DIRT,
+  SAND,
+  WATER,
+};
+
+struct ChunkGenInfo {
+  glm::ivec3 pos;
 };
 
 namespace Components {
@@ -22,10 +28,11 @@ namespace Components {
     std::set<EntityID> entities;
     Cell cells[CHUNK_COMPONENT_NUM_CELLS];
 
-    static Result create(Chunk& chunk);
-    static void destroy(Chunk& chunk);
+    Chunk ();
+    ~Chunk ();
 
     Mesh generate_mesh(glm::vec3 model_pos);
+    void generate_cells(const ChunkGenInfo& gen_info);
   };
 } // namespace Components
 

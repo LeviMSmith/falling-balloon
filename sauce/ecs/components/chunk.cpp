@@ -12,13 +12,11 @@
 void generate_face_vertices(std::vector<Mesh::Vertex>& vertices, u8 side, u8 x, u8 y, u8 z);
 
 namespace Components {
-  Result Chunk::create(Chunk& chunk) {
-    std::memset(&(chunk.cells), Cell::DIRT, CHUNK_COMPONENT_NUM_CELLS);
-
-    return Result::SUCCESS;
+  Chunk::Chunk() {
+    std::memset(this->cells, Cell::NONE, CHUNK_COMPONENT_NUM_CELLS);
   }
 
-  void Chunk::destroy(Chunk& chunk) {}
+  Chunk::~Chunk() {}
 
   Mesh Chunk::generate_mesh(glm::vec3 model_pos) {
     Mesh return_mesh;
@@ -120,5 +118,31 @@ void generate_face_vertices(std::vector<Mesh::Vertex>& vertices, u8 side, u8 x, 
     vertices.push_back(Mesh::Vertex{base_position + face_offsets[2], face_uv[2]});
     vertices.push_back(Mesh::Vertex{base_position + face_offsets[3], face_uv[3]});
     vertices.push_back(Mesh::Vertex{base_position + face_offsets[0], face_uv[0]});
+}
+
+void Components::Chunk::generate_cells(const ChunkGenInfo& gen_info) {
+  const f32 OCEAN_LEVEL = -50.0f;
+  const f32 BEACH_LEVEL = -45.0f;
+  const f32 DIRT_LEVEL = -40.0f;
+
+  glm::vec3 chunk_ws_pos = gen_info.pos * static_cast<s32>(CHUNK_COMPONENT_CELL_WIDTH);
+  f32 chunk_ws_height = chunk_ws_pos.y;
+
+  for (u8 y = 0; y < CHUNK_COMPONENT_CELL_WIDTH; y++) {
+    f32 ws_height = y + chunk_ws_height;
+    
+    if (ws_height < OCEAN_LEVEL) {
+      std::memset(&cells[y * CHUNK_COMPONENT_CELL_WIDTH], Cell::WATER, CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH);
+      continue;
+    }
+    if (ws_height < BEACH_LEVEL) {
+      std::memset(&cells[y * CHUNK_COMPONENT_CELL_WIDTH], Cell::SAND, CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH);
+      continue;
+    }
+    if (ws_height < DIRT_LEVEL) {
+      std::memset(&cells[y * CHUNK_COMPONENT_CELL_WIDTH], Cell::DIRT, CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH);
+      continue;
+    }
+  }
 }
 
