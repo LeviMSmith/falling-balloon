@@ -11,6 +11,13 @@ namespace Components {
     direction.y = sin(glm::radians(pitch));
     direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     direction = glm::normalize(direction);
+
+    forward.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    forward.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    forward = glm::normalize(forward);
+
+    right = glm::normalize(glm::cross(forward, up));
+
     view = glm::lookAt(eye, eye + direction, up);
   }
 }

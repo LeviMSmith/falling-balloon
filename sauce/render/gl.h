@@ -46,6 +46,8 @@ private:
     static GLuint model_location;
     static GLuint view_location;
     static GLuint projection_location;
+    static GLuint texture_atlas;
+    static GLuint texture_atlas_location;
     GLuint vbo;
     GLuint vao;
     glm::mat4 model;

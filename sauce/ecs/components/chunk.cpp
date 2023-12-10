@@ -69,6 +69,7 @@ namespace Components {
               else {
                 generate_face_vertices(return_mesh.vertices, side, x, y, z);
               }
+              // generate_face_vertices(return_mesh.vertices, side, x, y, z);
             }
           }
         }
@@ -77,6 +78,8 @@ namespace Components {
 
     return_mesh.model = glm::mat4(1.0f);
     return_mesh.model = glm::translate(return_mesh.model, model_pos);
+
+    // LOG_INFO("Num verticies: %d", return_mesh.vertices.size());
     
     return return_mesh;
   }
@@ -94,17 +97,28 @@ void generate_face_vertices(std::vector<Mesh::Vertex>& vertices, u8 side, u8 x, 
         {{1, 0, 0}, {1, 0, 1}, {1, 1, 1}, {1, 1, 0}}  // Right
     };
 
+    static const glm::vec2 tex_coord = {1, 0};
+    static const f32 atlas_size = 16.0f;
+    static const f32 padding = 0.005f;
+    static const glm::vec2 face_uv[4] = {
+        {tex_coord.x / atlas_size + padding, tex_coord.y / atlas_size + padding},
+        {(tex_coord.x + 1) / atlas_size - padding, tex_coord.y / atlas_size + padding},
+        {(tex_coord.x + 1) / atlas_size - padding, (tex_coord.y + 1) / atlas_size - padding},
+        {tex_coord.x / atlas_size + padding, (tex_coord.y + 1) / atlas_size - padding}
+    };
+
     // Calculate the base position of the cell
     glm::vec3 base_position(x, y, z);
 
     // Add vertices for each face (two triangles)
     const glm::vec3* face_offsets = offsets[side];
-    vertices.push_back(Mesh::Vertex{base_position + face_offsets[0]});
-    vertices.push_back(Mesh::Vertex{base_position + face_offsets[1]});
-    vertices.push_back(Mesh::Vertex{base_position + face_offsets[2]});
 
-    vertices.push_back(Mesh::Vertex{base_position + face_offsets[2]});
-    vertices.push_back(Mesh::Vertex{base_position + face_offsets[3]});
-    vertices.push_back(Mesh::Vertex{base_position + face_offsets[0]});
+    vertices.push_back(Mesh::Vertex{base_position + face_offsets[0], face_uv[0]});
+    vertices.push_back(Mesh::Vertex{base_position + face_offsets[1], face_uv[1]});
+    vertices.push_back(Mesh::Vertex{base_position + face_offsets[2], face_uv[2]});
+
+    vertices.push_back(Mesh::Vertex{base_position + face_offsets[2], face_uv[2]});
+    vertices.push_back(Mesh::Vertex{base_position + face_offsets[3], face_uv[3]});
+    vertices.push_back(Mesh::Vertex{base_position + face_offsets[0], face_uv[0]});
 }
 

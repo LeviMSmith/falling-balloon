@@ -50,6 +50,12 @@ Result GlBackend::create(GlBackend*& gl_backend, GLFWwindow* glfw_window) {
 
   gl_backend->handle_resize();
 
+  // glEnable(GL_CULL_FACE);
+  // glCullFace(GL_BACK); // or GL_FRONT if you need to cull front faces
+  // glFrontFace(GL_CCW); // or GL_CW for clockwise winding
+  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  // glDisable(GL_CULL_FACE);
+
   Result chunk_pipeline_prepare_res = ChunkPipeline::create_shader_program();
   if (chunk_pipeline_prepare_res != Result::SUCCESS) {
     GlBackend::destroy(gl_backend);
@@ -160,6 +166,8 @@ GLuint GlBackend::ChunkPipeline::shader_program = 0;
 GLuint GlBackend::ChunkPipeline::model_location = 0;
 GLuint GlBackend::ChunkPipeline::view_location = 0;
 GLuint GlBackend::ChunkPipeline::projection_location = 0;
+GLuint GlBackend::ChunkPipeline::texture_atlas = 0;
+GLuint GlBackend::ChunkPipeline::texture_atlas_location = 0;
 
 GlBackend::ChunkPipeline::ChunkPipeline() {
   if (ChunkPipeline::shader_program == 0) {
@@ -175,6 +183,9 @@ GlBackend::ChunkPipeline::ChunkPipeline() {
 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Mesh::Vertex), (void*)offsetof(Mesh::Vertex, position));
   glEnableVertexAttribArray(0);
+
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Mesh::Vertex), (void*)offsetof(Mesh::Vertex, tex_cord));
+  glEnableVertexAttribArray(1);
 
   glBindVertexArray(0);
 }
@@ -193,10 +204,18 @@ void GlBackend::ChunkPipeline::update(const Mesh& mesh) {
 
 void GlBackend::ChunkPipeline::draw() const {
   glUseProgram(shader_program);
+
   glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model));
+
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glBindVertexArray(vao);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texture_atlas);
+  glUniform1i(texture_atlas_location, 0);
+
   glDrawArrays(GL_TRIANGLES, 0, num_verticies);
+
   glBindVertexArray(0);
   glUseProgram(0);
 }
@@ -240,6 +259,39 @@ Result GlBackend::ChunkPipeline::create_shader_program() {
   model_location = glGetUniformLocation(shader_program, "model");
   view_location  = glGetUniformLocation(shader_program, "view");
   projection_location  = glGetUniformLocation(shader_program, "projection");
+  texture_atlas_location  = glGetUniformLocation(shader_program, "tex_atlas");
+
+  glGenTextures(1, &texture_atlas);
+  glBindTexture(GL_TEXTURE_2D, texture_atlas);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+  std::filesystem::path texture_atlas_path = resource_dir / "textures" / "blocks.png";
+
+  std::vector<u8> atlas_data;
+  int width, height, nrChannels;
+  Result load_res = Resources::load_image(atlas_data, width, height, nrChannels, texture_atlas_path);
+
+  if (load_res != Result::SUCCESS) {
+    return load_res;
+  }
+
+  GLenum format;
+  if (nrChannels == 3) {
+    format = GL_RGB;
+  } else if (nrChannels == 4) {
+    format = GL_RGBA;
+  } else {
+    LOG_WARN("Unknown texture format");
+    format = GL_RGB;
+  }
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, atlas_data.data());
+  glGenerateMipmap(GL_TEXTURE_2D);
 
   return Result::SUCCESS;
 }

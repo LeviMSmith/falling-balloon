@@ -40,6 +40,8 @@ Result Render::create(Render*& render, const Config* const config) {
   }
   render->glfw_window = glfwCreateWindow(config->window_width, config->window_height, "Falling Balloon", NULL, NULL);
 
+  glfwSetInputMode(render->glfw_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
   Result gl_backend_create_res = GlBackend::create(render->gl_backend, render->glfw_window);
   if (gl_backend_create_res != Result::SUCCESS) {
     Render::destroy(render);
