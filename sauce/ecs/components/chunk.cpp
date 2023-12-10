@@ -69,6 +69,7 @@ namespace Components {
               else {
                 generate_face_vertices(return_mesh.vertices, side, x, y, z);
               }
+              // generate_face_vertices(return_mesh.vertices, side, x, y, z);
             }
           }
         }
@@ -77,6 +78,8 @@ namespace Components {
 
     return_mesh.model = glm::mat4(1.0f);
     return_mesh.model = glm::translate(return_mesh.model, model_pos);
+
+    // LOG_INFO("Num verticies: %d", return_mesh.vertices.size());
     
     return return_mesh;
   }
