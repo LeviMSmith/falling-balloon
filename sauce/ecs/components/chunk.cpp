@@ -118,31 +118,42 @@ void generate_face_vertices(std::vector<Mesh::Vertex>& vertices, u8 side, Cell c
     vertices.push_back(Mesh::Vertex{base_position + face_offsets[0], texnorm | (0 << 16)});
 }
 
+float get_height_at(float x, float z) {
+    // Placeholder for a noise function or heightmap lookup
+    // Replace this with an actual function to generate terrain height
+    return std::sin(x * 0.1f) * std::cos(z * 0.1f) * 20.0f; // Example pattern
+}
+
 void Components::Chunk::generate_cells(const ChunkGenInfo& gen_info) {
-  const f32 OCEAN_LEVEL = -50.0f;
-  const f32 BEACH_LEVEL = -45.0f;
-  const f32 DIRT_LEVEL = -40.0f;
+  const float OCEAN_LEVEL = 0.0f;
+  const float BEACH_LEVEL = 5.0f;
+  const float DIRT_LEVEL = 10.0f;
 
-  glm::vec3 chunk_ws_pos = gen_info.pos * static_cast<s32>(CHUNK_COMPONENT_CELL_WIDTH);
-  f32 chunk_ws_height = chunk_ws_pos.y;
+  glm::vec3 chunk_ws_pos = static_cast<glm::vec3>(gen_info.pos) * static_cast<f32>(CHUNK_COMPONENT_CELL_WIDTH);
+  float chunk_ws_height = chunk_ws_pos.y;
 
+  for (uint8_t y = 0; y < CHUNK_COMPONENT_CELL_WIDTH; ++y) {
+    float ws_height = y + chunk_ws_height;
 
-  for (u8 y = 0; y < CHUNK_COMPONENT_CELL_WIDTH; y++) {
-    f32 ws_height = y + chunk_ws_height;
+    for (uint8_t z = 0; z < CHUNK_COMPONENT_CELL_WIDTH; ++z) {
+      for (uint8_t x = 0; x < CHUNK_COMPONENT_CELL_WIDTH; ++x) {
+        float terrainHeight = get_height_at(x + chunk_ws_pos.x, z + chunk_ws_pos.z);
 
-    Cell value;
-    
-    if (ws_height < OCEAN_LEVEL) {
-      value = Cell::WATER;
-    } else if (ws_height < BEACH_LEVEL) {
-      value = Cell::SAND;
-    } else if (ws_height < DIRT_LEVEL) {
-      value = Cell::DIRT;
-    }
+        // Determine the cell type based on the terrain height
+        Cell value = Cell::NONE;
+        if (ws_height < terrainHeight) {
+          if (terrainHeight < OCEAN_LEVEL) {
+            value = Cell::WATER;
+          } else if (terrainHeight < BEACH_LEVEL) {
+            value = Cell::SAND;
+          } else if (terrainHeight < DIRT_LEVEL) {
+            value = Cell::DIRT;
+          } else {
+            value = Cell::STONE;
+          }
+        }
 
-    for (u8 z = 0; z < CHUNK_COMPONENT_CELL_WIDTH; z++) {
-      for (u8 x = 0; x < CHUNK_COMPONENT_CELL_WIDTH; x++) {
-        u32 index = Dim::threed_to_oned<u32, u8>(x, y, z, CHUNK_COMPONENT_CELL_WIDTH, CHUNK_COMPONENT_CELL_WIDTH);
+        uint32_t index = x + CHUNK_COMPONENT_CELL_WIDTH * (y + CHUNK_COMPONENT_CELL_WIDTH * z);
         cells[index] = value;
       }
     }

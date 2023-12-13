@@ -20,6 +20,7 @@ private:
   void load_chunks(ECS* ecs);
 
   std::vector<glm::ivec3> get_chunks_in_radius(const glm::vec3& pos, f32 radius);
+  std::vector<glm::ivec3> get_chunks_in_cylinder(const glm::vec3& pos, f32 radius);
 };
 
 #endif // UPDATE_H_

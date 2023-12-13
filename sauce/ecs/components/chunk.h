@@ -13,6 +13,7 @@ enum Cell: u8 {
   DIRT,
   SAND,
   WATER,
+  STONE,
 };
 
 struct ChunkGenInfo {

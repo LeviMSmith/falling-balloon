@@ -49,6 +49,8 @@ vec2 get_tex_uv(uint texnorm) {
         case uint(3): // Water
             atlas_index = vec2(5, 0);
             break;
+        case uint(4): // Stone
+            atlas_index = vec2(0, 0);
     }
 
     vec2 corner_offset = vec2(0, 0);

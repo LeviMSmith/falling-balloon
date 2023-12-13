@@ -127,9 +127,10 @@ void Update::handle_mouse_movement(f32 xoffset, f32 yoffset, RenderEvents* rende
 }
 
 void Update::load_chunks(ECS* ecs) {
-  std::vector<glm::ivec3> active_chunk_corners = get_chunks_in_radius(ecs->pos_components[active_player].pos, 30.0f);
+  std::vector<glm::ivec3> active_chunk_corners = get_chunks_in_cylinder(ecs->pos_components[active_player].pos, 50.0f);
 
   for (const glm::ivec3& chunk_pos : active_chunk_corners) {
+    //LOG_DEBUG("YARR chunk %d, %d be loadin", chunk_pos.x, chunk_pos.y);
     if (!ecs->chunk_pos_index.contains(chunk_pos)) {
       EntityID new_chunk_id;
       ecs->create_entity_chunk(new_chunk_id);
@@ -171,3 +172,28 @@ std::vector<glm::ivec3> Update::get_chunks_in_radius(const glm::vec3& pos, f32 r
   return corners;
 }
 
+std::vector<glm::ivec3> Update::get_chunks_in_cylinder(const glm::vec3& pos, float radius) {
+  std::vector<glm::ivec3> corners;
+
+  int minX = static_cast<int>(floor((pos.x - radius) / Components::CHUNK_COMPONENT_CELL_WIDTH));
+  int maxX = static_cast<int>(floor((pos.x + radius) / Components::CHUNK_COMPONENT_CELL_WIDTH));
+  int minY = static_cast<int>(floor((pos.y - radius) / Components::CHUNK_COMPONENT_CELL_WIDTH)); // Not used in calculation
+  int maxY = static_cast<int>(floor((pos.y + radius) / Components::CHUNK_COMPONENT_CELL_WIDTH)); // Not used in calculation
+  int minZ = static_cast<int>(floor((pos.z - radius) / Components::CHUNK_COMPONENT_CELL_WIDTH));
+  int maxZ = static_cast<int>(floor((pos.z + radius) / Components::CHUNK_COMPONENT_CELL_WIDTH));
+
+  for (int x = minX; x <= maxX; ++x) {
+    for (int y = minY; y <= maxY; ++y) { // Y-axis iteration remains the same
+      for (int z = minZ; z <= maxZ; ++z) {
+        glm::ivec3 corner = glm::ivec3(x, y, z) * static_cast<int>(Components::CHUNK_COMPONENT_CELL_WIDTH);
+        glm::vec2 delta = glm::vec2(corner.x - pos.x, corner.z - pos.z); // Only consider X and Z
+
+        if (glm::length(delta) <= radius) {
+            corners.push_back(corner);
+        }
+      }
+    }
+  }
+
+  return corners;
+}
