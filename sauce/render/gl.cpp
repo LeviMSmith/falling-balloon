@@ -51,8 +51,8 @@ Result GlBackend::create(GlBackend*& gl_backend, GLFWwindow* glfw_window) {
   gl_backend->handle_resize();
 
   // glEnable(GL_CULL_FACE);
-  // glCullFace(GL_BACK); // or GL_FRONT if you need to cull front faces
-  // glFrontFace(GL_CCW); // or GL_CW for clockwise winding
+  // glCullFace(GL_BACK);
+  // glFrontFace(GL_CCW);
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   // glDisable(GL_CULL_FACE);
 
@@ -184,7 +184,7 @@ GlBackend::ChunkPipeline::ChunkPipeline() {
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Mesh::Vertex), (void*)offsetof(Mesh::Vertex, position));
   glEnableVertexAttribArray(0);
 
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Mesh::Vertex), (void*)offsetof(Mesh::Vertex, tex_cord));
+  glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, sizeof(Mesh::Vertex), (void*)offsetof(Mesh::Vertex, texnorm));
   glEnableVertexAttribArray(1);
 
   glBindVertexArray(0);
@@ -199,7 +199,7 @@ void GlBackend::ChunkPipeline::update(const Mesh& mesh) {
   num_verticies = mesh.vertices.size();
   model = mesh.model;
   glBindBuffer(GL_ARRAY_BUFFER, vbo); 
-  glBufferData(GL_ARRAY_BUFFER, num_verticies * sizeof(Mesh::Vertex), mesh.vertices.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, num_verticies * sizeof(Mesh::Vertex), mesh.vertices.data(), GL_DYNAMIC_DRAW);
 }
 
 void GlBackend::ChunkPipeline::draw() const {
@@ -209,6 +209,8 @@ void GlBackend::ChunkPipeline::draw() const {
 
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glBindVertexArray(vao);
+  glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texture_atlas);
