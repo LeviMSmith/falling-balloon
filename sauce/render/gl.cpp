@@ -53,6 +53,8 @@ Result GlBackend::create(GlBackend*& gl_backend, GLFWwindow* glfw_window) {
   // glEnable(GL_CULL_FACE);
   // glCullFace(GL_BACK);
   // glFrontFace(GL_CCW);
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   // glDisable(GL_CULL_FACE);
 
@@ -73,7 +75,7 @@ void GlBackend::destroy(GlBackend*& gl_backend) {
 }
 
 Result GlBackend::draw(DrawInfo& draw_info) {
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   size_t num_new_chunks = draw_info.new_chunk_meshes.size();
   if (num_new_chunks > 0) {

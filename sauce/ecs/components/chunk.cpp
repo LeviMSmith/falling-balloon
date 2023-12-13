@@ -55,21 +55,22 @@ namespace Components {
                 }
               }
 
-              bool x_out_of_chunk = neighbor_x < 0 || neighbor_x >= CHUNK_COMPONENT_CELL_WIDTH;
-              bool y_out_of_chunk = neighbor_y < 0 || neighbor_y >= CHUNK_COMPONENT_CELL_WIDTH;
-              bool z_out_of_chunk = neighbor_z < 0 || neighbor_z >= CHUNK_COMPONENT_CELL_WIDTH;
-              if (!z_out_of_chunk && !y_out_of_chunk && !x_out_of_chunk) {
-                Cell neighbor_cell = cells[Dim::threed_to_oned<u32, u8>(neighbor_x, neighbor_y, neighbor_z, CHUNK_COMPONENT_CELL_WIDTH, CHUNK_COMPONENT_CELL_WIDTH)];
-                if (neighbor_cell == Cell::NONE) {
-                  Cell this_cell = cells[Dim::threed_to_oned<u32, u8>(x, y, z, CHUNK_COMPONENT_CELL_WIDTH, CHUNK_COMPONENT_CELL_WIDTH)];
-                  generate_face_vertices(return_mesh.vertices, side, this_cell, x, y, z);
-                }
-              }
-              else {
-                Cell this_cell = cells[Dim::threed_to_oned<u32, u8>(x, y, z, CHUNK_COMPONENT_CELL_WIDTH, CHUNK_COMPONENT_CELL_WIDTH)];
-                generate_face_vertices(return_mesh.vertices, side, this_cell, x, y, z);
-              }
-              // generate_face_vertices(return_mesh.vertices, side, x, y, z);
+              // bool x_out_of_chunk = neighbor_x < 0 || neighbor_x >= CHUNK_COMPONENT_CELL_WIDTH;
+              // bool y_out_of_chunk = neighbor_y < 0 || neighbor_y >= CHUNK_COMPONENT_CELL_WIDTH;
+              // bool z_out_of_chunk = neighbor_z < 0 || neighbor_z >= CHUNK_COMPONENT_CELL_WIDTH;
+              // if (!z_out_of_chunk && !y_out_of_chunk && !x_out_of_chunk) {
+              //   Cell neighbor_cell = cells[Dim::threed_to_oned<u32, u8>(neighbor_x, neighbor_y, neighbor_z, CHUNK_COMPONENT_CELL_WIDTH, CHUNK_COMPONENT_CELL_WIDTH)];
+              //   if (neighbor_cell == Cell::NONE) {
+              //     Cell this_cell = cells[Dim::threed_to_oned<u32, u8>(x, y, z, CHUNK_COMPONENT_CELL_WIDTH, CHUNK_COMPONENT_CELL_WIDTH)];
+              //     generate_face_vertices(return_mesh.vertices, side, this_cell, x, y, z);
+              //   }
+              // }
+              // else {
+              //   Cell this_cell = cells[Dim::threed_to_oned<u32, u8>(x, y, z, CHUNK_COMPONENT_CELL_WIDTH, CHUNK_COMPONENT_CELL_WIDTH)];
+              //   generate_face_vertices(return_mesh.vertices, side, this_cell, x, y, z);
+              // }
+              Cell this_cell = cells[Dim::threed_to_oned<u32, u8>(x, y, z, CHUNK_COMPONENT_CELL_WIDTH, CHUNK_COMPONENT_CELL_WIDTH)];
+              generate_face_vertices(return_mesh.vertices, side, this_cell, x, y, z);
             }
           }
         }
