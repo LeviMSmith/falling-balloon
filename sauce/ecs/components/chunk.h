@@ -11,21 +11,29 @@
 enum Cell: u8 {
   NONE,
   DIRT,
+  SAND,
+  WATER,
+  STONE,
+};
+
+struct ChunkGenInfo {
+  glm::ivec3 pos;
 };
 
 namespace Components {
-  constexpr size_t CHUNK_COMPONENT_CELL_WIDTH = 16;
-  constexpr size_t CHUNK_COMPONENT_NUM_CELLS = CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH;
+  constexpr u8 CHUNK_COMPONENT_CELL_WIDTH = 16;
+  constexpr u32 CHUNK_COMPONENT_NUM_CELLS = CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH;
 
   class Chunk {
   public:
     std::set<EntityID> entities;
     Cell cells[CHUNK_COMPONENT_NUM_CELLS];
 
-    static Result create(Chunk& chunk);
-    static void destroy(Chunk& chunk);
+    Chunk ();
+    ~Chunk ();
 
     Mesh generate_mesh(glm::vec3 model_pos);
+    void generate_cells(const ChunkGenInfo& gen_info);
   };
 } // namespace Components
 

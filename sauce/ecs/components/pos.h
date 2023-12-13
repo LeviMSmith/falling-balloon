@@ -8,6 +8,7 @@
 namespace Components {
   struct Pos {
     Pos() : pos(glm::vec3(0.0f)) {}
+    Pos(const glm::vec3& pos) : pos(pos) {}
 
     glm::vec3 pos;
   };

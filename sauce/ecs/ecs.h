@@ -14,10 +14,15 @@
 #include "ecs/components/pos.h"
 
 #include <map>
+#include <queue>
 #include <unordered_map>
 #include <set>
 #include <unordered_set>
 #include <vector>
+
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/hash.hpp"
 
 class ECS {
 public:
@@ -53,6 +58,8 @@ private:
   std::unordered_map<EntityID, Components::GraphicsPipeline> graphics_pipeline_components;
   std::unordered_map<EntityID, Components::Chunk> chunk_components;
   LRUcache<EntityID, Mesh> mesh_components;
+
+  std::unordered_map<glm::ivec3, EntityID> chunk_pos_index;
 
   friend class Render;
   friend class Update;

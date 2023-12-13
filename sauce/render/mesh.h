@@ -3,6 +3,7 @@
 
 #include "core.h"
 
+#include "GL/glew.h"
 #include "glm/glm.hpp"
 
 #include <vector>
@@ -10,7 +11,7 @@
 struct Mesh {
   struct Vertex {
     glm::vec3 position;
-    glm::vec2 tex_cord;
+    GLuint texnorm;
   };
 
   std::vector<Vertex> vertices;

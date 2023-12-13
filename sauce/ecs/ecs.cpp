@@ -94,8 +94,8 @@ Result ECS::add_component_to_entity(EntityID entity_id, ComponentType component_
       break;
     }
     case ComponentType::CHUNK: {
-      Components::Chunk& chunk = chunk_components[entity_id];
-      component_create_res = Components::Chunk::create(chunk);
+      chunk_components[entity_id] = Components::Chunk();
+      component_create_res = Result::SUCCESS;
       break;
     }
     default: {
@@ -130,12 +130,10 @@ void ECS::remove_component_from_entity(EntityID entity_id, ComponentType compone
       break;
     }
     case ComponentType::CHUNK: {
-      Components::Chunk& chunk = chunk_components[entity_id];
-      Components::Chunk::destroy(chunk);
       break;
     }
     default: {
-      LOG_WARN("Got weird component type in entity component removal");
+      LOG_WARN("Got weird component type in entity component removal: %u", (u32)component_type);
     }
   }
 
@@ -167,8 +165,9 @@ std::vector<Mesh> ECS::get_chunk_mesh_component_batch(const std::vector<EntityID
       return_meshes.push_back(mesh);
     }
     else {
-      Components::Chunk chunk = chunk_components.at(entity_id);
+      Components::Chunk& chunk = chunk_components.at(entity_id);
       Components::Pos chunk_pos = pos_components.at(entity_id);
+      LOG_DEBUG("Chun pos %f, %f, %f", chunk_pos.pos.x, chunk_pos.pos.y, chunk_pos.pos.z);
       auto task = [&chunk, chunk_pos] { return chunk.generate_mesh(chunk_pos.pos); };
       mesh_futures[entity_id] = ThreadPool::enqueue(task);
     }

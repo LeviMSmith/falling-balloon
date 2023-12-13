@@ -17,6 +17,10 @@ public:
 private:
   Result handle_keypresses(std::vector<WindowEvents::KeyPress>& key_presses, RenderEvents* render_events, ECS* ecs);
   void handle_mouse_movement(f32 xoffset, f32 yoffset, RenderEvents* render_events, ECS* ecs);
+  void load_chunks(ECS* ecs);
+
+  std::vector<glm::ivec3> get_chunks_in_radius(const glm::vec3& pos, f32 radius);
+  std::vector<glm::ivec3> get_chunks_in_cylinder(const glm::vec3& pos, f32 radius);
 };
 
 #endif // UPDATE_H_
