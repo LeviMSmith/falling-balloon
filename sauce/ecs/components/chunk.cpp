@@ -128,20 +128,25 @@ void Components::Chunk::generate_cells(const ChunkGenInfo& gen_info) {
   glm::vec3 chunk_ws_pos = gen_info.pos * static_cast<s32>(CHUNK_COMPONENT_CELL_WIDTH);
   f32 chunk_ws_height = chunk_ws_pos.y;
 
+
   for (u8 y = 0; y < CHUNK_COMPONENT_CELL_WIDTH; y++) {
     f32 ws_height = y + chunk_ws_height;
+
+    Cell value;
     
     if (ws_height < OCEAN_LEVEL) {
-      std::memset(&cells[y * CHUNK_COMPONENT_CELL_WIDTH], Cell::WATER, CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH);
-      continue;
+      value = Cell::WATER;
+    } else if (ws_height < BEACH_LEVEL) {
+      value = Cell::SAND;
+    } else if (ws_height < DIRT_LEVEL) {
+      value = Cell::DIRT;
     }
-    if (ws_height < BEACH_LEVEL) {
-      std::memset(&cells[y * CHUNK_COMPONENT_CELL_WIDTH], Cell::SAND, CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH);
-      continue;
-    }
-    if (ws_height < DIRT_LEVEL) {
-      std::memset(&cells[y * CHUNK_COMPONENT_CELL_WIDTH], Cell::DIRT, CHUNK_COMPONENT_CELL_WIDTH * CHUNK_COMPONENT_CELL_WIDTH);
-      continue;
+
+    for (u8 z = 0; z < CHUNK_COMPONENT_CELL_WIDTH; z++) {
+      for (u8 x = 0; x < CHUNK_COMPONENT_CELL_WIDTH; x++) {
+        u32 index = Dim::threed_to_oned<u32, u8>(x, y, z, CHUNK_COMPONENT_CELL_WIDTH, CHUNK_COMPONENT_CELL_WIDTH);
+        cells[index] = value;
+      }
     }
   }
 }

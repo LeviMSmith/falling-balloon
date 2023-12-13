@@ -127,7 +127,7 @@ void Update::handle_mouse_movement(f32 xoffset, f32 yoffset, RenderEvents* rende
 }
 
 void Update::load_chunks(ECS* ecs) {
-  std::vector<glm::ivec3> active_chunk_corners = get_chunks_in_radius(ecs->pos_components[active_player].pos, 200.0f);
+  std::vector<glm::ivec3> active_chunk_corners = get_chunks_in_radius(ecs->pos_components[active_player].pos, 100.0f);
 
   for (const glm::ivec3& chunk_pos : active_chunk_corners) {
     if (!ecs->chunk_pos_index.contains(chunk_pos)) {
@@ -140,6 +140,7 @@ void Update::load_chunks(ECS* ecs) {
 
       chunk.generate_cells(gen_info);
       ecs->chunk_pos_index[chunk_pos] = new_chunk_id;
+      ecs->pos_components[new_chunk_id] = {static_cast<glm::vec3>(chunk_pos)};
     }
   }
 }

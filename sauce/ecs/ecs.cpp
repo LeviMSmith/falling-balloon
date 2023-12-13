@@ -165,8 +165,9 @@ std::vector<Mesh> ECS::get_chunk_mesh_component_batch(const std::vector<EntityID
       return_meshes.push_back(mesh);
     }
     else {
-      Components::Chunk chunk = chunk_components.at(entity_id);
+      Components::Chunk& chunk = chunk_components.at(entity_id);
       Components::Pos chunk_pos = pos_components.at(entity_id);
+      LOG_DEBUG("Chun pos %f, %f, %f", chunk_pos.pos.x, chunk_pos.pos.y, chunk_pos.pos.z);
       auto task = [&chunk, chunk_pos] { return chunk.generate_mesh(chunk_pos.pos); };
       mesh_futures[entity_id] = ThreadPool::enqueue(task);
     }
